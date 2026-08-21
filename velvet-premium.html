@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>VELVET — A private world for two.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================= TOKENS ============================= */
+:root{
+  --black:#0a0708;
+  --charcoal:#130f10;
+  --charcoal-2:#1b1516;
+  --charcoal-3:#221a1c;
+  --wine:#2c0d15;
+  --wine-2:#3d1119;
+  --crimson:#b3122d;
+  --crimson-bright:#d8203f;
+  --crimson-dim:#7a1120;
+  --glow:rgba(179,18,45,.38);
+  --glow-soft:rgba(179,18,45,.16);
+  --ivory:#f4ebe7;
+  --ivory-dim:#cdbdb9;
+  --gray:#8f7f7c;
+  --gray-dim:#5f5453;
+  --line:rgba(244,235,231,.09);
+  --line-2:rgba(244,235,231,.16);
+  --serif:'Fraunces', Georgia, serif;
+  --sans:'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:var(--sans);
+  background:
+    radial-gradient(ellipse 900px 500px at 20% -10%, rgba(179,18,45,.10), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 10%, rgba(61,17,25,.35), transparent 55%),
+    #050404;
+  color:var(--ivory);
+  min-height:100dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px 0;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001s !important; transition-duration:.001s !important;}
+}
+::selection{background:var(--glow); color:var(--ivory);}
+button{font-family:inherit; cursor:pointer;}
+input,textarea{font-family:inherit;}
+
+/* ============================= PHONE FRAME ============================= */
+.phone-frame{
+  width:390px;
+  height:844px;
+  max-width:100vw;
+  max-height:100dvh;
+  position:relative;
+  border-radius:44px;
+  padding:10px;
+  background:linear-gradient(155deg,#26181b,#0c0808 55%);
+  box-shadow:
+    0 40px 100px rgba(0,0,0,.65),
+    0 0 0 1px rgba(255,255,255,.04) inset,
+    0 0 60px rgba(179,18,45,.06);
+}
+@media (max-width:430px){
+  body{padding:0;}
+  .phone-frame{width:100vw; height:100dvh; border-radius:0; padding:0;}
+}
+.app{
+  position:relative;
+  width:100%;
+  height:100%;
+  border-radius:36px;
+  overflow:hidden;
+  background:var(--black);
+  isolation:isolate;
+}
+@media (max-width:430px){ .app{border-radius:0;} }
+.app::before{
+  content:'';
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 520px 360px at 15% 0%, rgba(179,18,45,.14), transparent 60%),
+    radial-gradient(ellipse 420px 420px at 100% 100%, rgba(61,17,25,.4), transparent 55%);
+  pointer-events:none;
+  z-index:0;
+}
+.notch{
+  position:absolute; top:8px; left:50%; transform:translateX(-50%);
+  width:120px; height:26px; background:#000; border-radius:20px; z-index:50;
+}
+@media (max-width:430px){ .notch{display:none;} }
+
+/* ============================= SCREENS ============================= */
+.screen{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transform:scale(1.02);
+  transition:opacity .5s var(--ease), transform .5s var(--ease), visibility 0s .5s;
+  z-index:1;
+}
+.screen.active{
+  opacity:1; visibility:visible; pointer-events:auto; transform:scale(1);
+  transition:opacity .55s var(--ease), transform .55s var(--ease);
+  z-index:2;
+}
+.screen-scroll{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.screen-scroll::-webkit-scrollbar{ display:none; }
+
+/* ============================= TYPE ============================= */
+.eyebrow{ font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--gray); font-weight:700; }
+.serif{ font-family:var(--serif); }
+.wordmark{
+  font-family:var(--serif); font-weight:500; font-size:34px; letter-spacing:.14em;
+  color:var(--ivory);
+}
+h1,h2,h3,p{ margin:0; }
+
+/* ============================= BUTTONS ============================= */
+.btn{
+  border:none; border-radius:16px; padding:17px 22px; font-size:15px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:transform .18s var(--ease), box-shadow .18s var(--ease), filter .18s var(--ease);
+  letter-spacing:.01em;
+}
+.btn:active{ transform:scale(.965); }
+.btn-primary{
+  background:linear-gradient(155deg, var(--crimson-bright), var(--crimson-dim));
+  color:#fff0ef;
+  box-shadow:0 10px 30px -8px var(--glow), 0 0 0 1px rgba(255,255,255,.06) inset;
+}
+.btn-primary:active{ filter:brightness(.94); }
+.btn-ghost{
+  background:rgba(244,235,231,.05);
+  color:var(--ivory);
+  border:1px solid var(--line-2);
+}
+.btn-text{
+  background:none; color:var(--ivory-dim); font-weight:600; padding:10px;
+}
+.btn-block{ width:100%; }
+.btn-sm{ padding:11px 16px; font-size:13px; border-radius:12px; }
+
+/* ============================= FIELDS ============================= */
+.field{ display:flex; flex-direction:column; gap:8px; }
+.field label{ font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--gray); font-weight:700; }
+.field input, .field-input{
+  background:rgba(244,235,231,.04);
+  border:1px solid var(--line-2);
+  border-radius:14px;
+  padding:15px 16px;
+  color:var(--ivory);
+  font-size:15px;
+  outline:none;
+  transition:border-color .2s var(--ease), background .2s var(--ease), box-shadow .2s var(--ease);
+}
+.field input::placeholder{ color:var(--gray-dim); }
+.field input:focus, .field-input:focus{
+  border-color:var(--crimson-dim);
+  background:rgba(179,18,45,.06);
+  box-shadow:0 0 0 3px var(--glow-soft);
+}
+
+/* ============================= ONBOARDING ============================= */
+#screen-onboarding{ justify-content:flex-end; padding:0 28px 44px; text-align:center; align-items:center;}
+.onb-crest{
+  margin-top:auto; margin-bottom:34px;
+  width:64px; height:64px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(circle at 35% 30%, rgba(216,32,63,.5), rgba(44,13,21,.2) 70%);
+  border:1px solid var(--line-2);
+  box-shadow:0 0 40px var(--glow-soft);
+  animation:flicker 5s ease-in-out infinite;
+}
+@keyframes flicker{
+  0%,100%{ box-shadow:0 0 40px var(--glow-soft); }
+  50%{ box-shadow:0 0 58px var(--glow); }
+}
+.onb-title{ margin-bottom:10px; }
+.onb-tagline{ font-family:var(--serif); font-style:italic; font-size:19px; color:var(--ivory-dim); margin-bottom:6px; }
+.onb-sub{ font-size:13.5px; color:var(--gray); max-width:260px; margin:0 auto 40px; line-height:1.6; }
+.onb-actions{ width:100%; display:flex; flex-direction:column; gap:12px; }
+
+/* ============================= STEPPER / CREATE ============================= */
+.topbar{
+  display:flex; align-items:center; gap:14px;
+  padding:18px 20px 6px; position:relative; z-index:2;
+}
+.icon-btn{
+  width:38px; height:38px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(244,235,231,.05); border:1px solid var(--line);
+  color:var(--ivory-dim); flex-shrink:0;
+  transition:background .18s var(--ease), transform .15s var(--ease);
+}
+.icon-btn:active{ transform:scale(.92); background:rgba(244,235,231,.1); }
+.step-dots{ display:flex; gap:6px; margin-left:auto; }
+.step-dot{ width:6px; height:6px; border-radius:50%; background:var(--line-2); transition:all .3s var(--ease); }
+.step-dot.done{ background:var(--crimson-dim); }
+.step-dot.on{ width:18px; background:var(--crimson-bright); }
+
+.stepper-body{ flex:1; padding:20px 28px 24px; display:flex; flex-direction:column; }
+.step-pane{ display:none; flex-direction:column; gap:22px; flex:1; }
+.step-pane.active{ display:flex; animation:stepIn .45s var(--ease); }
+@keyframes stepIn{ from{ opacity:0; transform:translateX(14px);} to{ opacity:1; transform:translateX(0);} }
+.step-head{ margin-bottom:4px; }
+.step-head h2{ font-family:var(--serif); font-weight:500; font-size:25px; line-height:1.3; margin-top:8px; }
+.step-foot{ margin-top:auto; padding-top:18px; }
+.name-preview{
+  margin-top:10px; text-align:center; font-family:var(--serif); font-style:italic;
+  color:var(--gray); font-size:14px; min-height:20px;
+}
+
+/* date grid for "together since" */
+.date-picker-mini{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+.date-picker-mini select{
+  background:rgba(244,235,231,.04); border:1px solid var(--line-2); color:var(--ivory);
+  padding:14px 10px; border-radius:12px; font-size:14px; outline:none; appearance:none; text-align:center;
+}
+
+.invite-code{
+  margin-top:14px; padding:22px; border-radius:20px; text-align:center;
+  background:linear-gradient(160deg, rgba(179,18,45,.12), rgba(244,235,231,.02));
+  border:1px solid var(--line-2);
+}
+.invite-code .code{ font-family:var(--serif); font-size:28px; letter-spacing:.12em; color:var(--ivory); margin:10px 0 6px; }
+.invite-code .hint{ font-size:12px; color:var(--gray); }
+
+/* ============================= LOGIN ============================= */
+#screen-login{ justify-content:center; padding:0 30px; }
+.login-head{ text-align:center; margin-bottom:36px; }
+.login-head .wordmark{ margin-bottom:10px; }
+.login-form{ display:flex; flex-direction:column; gap:16px; }
+
+/* ============================= MAIN APP SHELL ============================= */
+.main-app{
+  position:absolute; inset:0; z-index:1;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .55s var(--ease), visibility 0s .55s;
+  display:flex; flex-direction:column;
+}
+.main-app.active{ opacity:1; visibility:visible; pointer-events:auto; transition:opacity .6s var(--ease) .05s; z-index:5;}
+.tab-panels{ flex:1; position:relative; overflow:hidden; }
+.tab-panel{
+  position:absolute; inset:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  opacity:0; transform:translateY(10px); pointer-events:none;
+  transition:opacity .38s var(--ease), transform .38s var(--ease);
+  padding-bottom:110px;
+}
+.tab-panel::-webkit-scrollbar{ display:none; }
+.tab-panel.active{ opacity:1; transform:translateY(0); pointer-events:auto; }
+
+/* top app bar */
+.app-topbar{ padding:22px 22px 4px; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.app-topbar .meta{ font-size:11px; color:var(--gray); letter-spacing:.04em; margin-bottom:8px; display:flex; align-items:center; gap:6px;}
+.app-topbar .meta .dot{ width:5px; height:5px; border-radius:50%; background:var(--crimson-bright); box-shadow:0 0 8px var(--glow); }
+.greeting{ font-family:var(--serif); font-size:24px; font-weight:500; color:var(--ivory); }
+.counter-pill{
+  margin-top:14px; display:inline-flex; align-items:center; gap:8px;
+  padding:9px 14px; border-radius:100px; font-size:12.5px; color:var(--ivory-dim);
+  background:rgba(244,235,231,.05); border:1px solid var(--line);
+}
+.counter-pill b{ color:var(--ivory); font-weight:700; }
+
+/* prompt card */
+.section-pad{ padding:18px 22px; }
+.prompt-card{
+  border-radius:24px; padding:26px 22px; position:relative; overflow:hidden;
+  background:linear-gradient(160deg, rgba(179,18,45,.16), rgba(28,15,17,.6) 70%);
+  border:1px solid var(--line-2);
+}
+.prompt-card::after{
+  content:''; position:absolute; width:200px; height:200px; border-radius:50%;
+  background:radial-gradient(circle, rgba(216,32,63,.25), transparent 65%);
+  right:-70px; top:-70px; pointer-events:none;
+}
+.prompt-card .q{ font-family:var(--serif); font-style:italic; font-size:20px; line-height:1.4; color:var(--ivory); position:relative; z-index:1; }
+.prompt-card .btn{ margin-top:20px; position:relative; z-index:1; }
+
+/* section headers */
+.sec-head{ display:flex; align-items:baseline; justify-content:space-between; padding:26px 22px 12px; }
+.sec-head .eyebrow{ font-size:11px; }
+.sec-head .link{ font-size:12px; color:var(--gray); font-weight:600; }
+
+/* on this day card */
+.otd-card{
+  margin:0 22px; border-radius:20px; padding:18px; display:flex; gap:14px; align-items:center;
+  background:rgba(244,235,231,.035); border:1px solid var(--line);
+  transition:transform .18s var(--ease), background .18s var(--ease);
+}
+.otd-card:active{ transform:scale(.98); background:rgba(244,235,231,.06); }
+.otd-icon{
+  width:44px; height:44px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(circle at 35% 30%, rgba(216,32,63,.45), rgba(44,13,21,.3));
+  border:1px solid var(--line-2);
+}
+.otd-card .t{ font-size:11px; color:var(--crimson-bright); font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px; }
+.otd-card .x{ font-family:var(--serif); font-style:italic; font-size:14px; color:var(--ivory-dim); line-height:1.4; }
+
+/* diary cards (recents / journal list) */
+.diary-card{
+  margin:0 22px 12px; padding:18px; border-radius:20px; cursor:pointer;
+  background:rgba(244,235,231,.03); border:1px solid var(--line);
+  transition:transform .18s var(--ease), background .18s var(--ease), border-color .18s var(--ease);
+}
+.diary-card:active{ transform:scale(.98); background:rgba(244,235,231,.055); }
+.diary-card .row1{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.diary-card .mood{ font-size:17px; }
+.diary-card .title{ font-family:var(--serif); font-size:17px; color:var(--ivory); margin-bottom:5px; }
+.diary-card .excerpt{ font-size:13px; color:var(--gray); line-height:1.55; margin-bottom:10px;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.diary-card .meta{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--gray-dim); letter-spacing:.03em; text-transform:uppercase; font-weight:700;}
+.badge{
+  display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700;
+  padding:3px 9px; border-radius:100px; text-transform:uppercase; letter-spacing:.04em;
+}
+.badge-shared{ background:rgba(179,18,45,.18); color:#ff8f9c; }
+.badge-private{ background:rgba(244,235,231,.07); color:var(--gray); }
+
+/* ============================= BOTTOM NAV ============================= */
+.bottom-nav{
+  position:relative; z-index:6;
+  display:flex; align-items:center; justify-content:space-around;
+  padding:10px 8px calc(14px + env(safe-area-inset-bottom));
+  background:rgba(12,9,10,.82);
+  backdrop-filter:blur(20px) saturate(140%);
+  border-top:1px solid var(--line);
+}
+.nav-btn{
+  background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:5px;
+  color:var(--gray-dim); padding:6px 10px; border-radius:14px; transition:color .2s var(--ease), transform .15s var(--ease);
+  flex:1;
+}
+.nav-btn svg{ width:22px; height:22px; transition:transform .2s var(--ease-spring); }
+.nav-btn span{ font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+.nav-btn.active{ color:var(--ivory); }
+.nav-btn.active svg{ transform:translateY(-2px); filter:drop-shadow(0 2px 8px var(--glow)); }
+.nav-btn:active{ transform:scale(.9); }
+
+.fab{
+  position:absolute; right:20px; bottom:96px; z-index:7;
+  width:56px; height:56px; border-radius:50%; border:none;
+  background:linear-gradient(155deg, var(--crimson-bright), var(--crimson-dim));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 14px 34px -8px var(--glow), 0 0 0 1px rgba(255,255,255,.08) inset;
+  transition:transform .18s var(--ease-spring);
+  color:#fff0ef;
+}
+.fab:active{ transform:scale(.9) rotate(8deg); }
+.fab svg{ width:22px; height:22px; }
+
+/* ============================= JOURNAL TAB ============================= */
+.date-strip{ display:flex; gap:10px; overflow-x:auto; padding:14px 22px 4px; scroll-snap-type:x proximity; }
+.date-strip::-webkit-scrollbar{ display:none; }
+.date-chip{
+  scroll-snap-align:center; flex-shrink:0; width:52px; padding:12px 0; border-radius:16px; text-align:center;
+  background:rgba(244,235,231,.03); border:1px solid var(--line); transition:all .2s var(--ease);
+}
+.date-chip .d{ font-size:17px; font-weight:700; color:var(--ivory); }
+.date-chip .w{ font-size:10px; color:var(--gray); text-transform:uppercase; letter-spacing:.05em; margin-top:3px; }
+.date-chip.sel{
+  background:linear-gradient(160deg, rgba(179,18,45,.22), rgba(28,15,17,.7));
+  border-color:var(--crimson-dim);
+  box-shadow:0 0 0 1px var(--crimson-dim), 0 10px 24px -10px var(--glow);
+}
+.date-chip.has-entry .d::after{ content:''; display:block; width:4px; height:4px; border-radius:50%; background:var(--crimson-bright); margin:5px auto 0; }
+.month-nav{ display:flex; align-items:center; justify-content:center; gap:16px; padding:20px 22px 2px; }
+.month-nav .lbl{ font-family:var(--serif); font-size:16px; min-width:150px; text-align:center; }
+
+/* ============================= LETTERS ============================= */
+.letter-card{
+  margin:0 22px 14px; border-radius:22px; padding:22px; position:relative; overflow:hidden; cursor:pointer;
+  background:linear-gradient(155deg, var(--charcoal-2), var(--charcoal));
+  border:1px solid var(--line-2);
+  transition:transform .2s var(--ease);
+}
+.letter-card:active{ transform:scale(.975); }
+.letter-card::before{
+  content:''; position:absolute; top:-1px; left:22px; width:44px; height:5px; border-radius:0 0 8px 8px;
+  background:linear-gradient(90deg, var(--crimson-dim), var(--crimson-bright));
+}
+.letter-card .seal{
+  position:absolute; top:18px; right:18px; width:30px; height:30px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, rgba(216,32,63,.6), rgba(44,13,21,.3));
+  border:1px solid var(--line-2); display:flex; align-items:center; justify-content:center; font-size:12px;
+}
+.letter-card .title{ font-family:var(--serif); font-size:19px; color:var(--ivory); margin:6px 40px 8px 0; line-height:1.3; }
+.letter-card .teaser{ font-size:13px; color:var(--gray); line-height:1.55; margin-bottom:14px; }
+.letter-card .lockline{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--crimson-bright); font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+.letter-card .lockline svg{ width:12px; height:12px; }
+
+/* ============================= MEMORIES ============================= */
+.chip-row{ display:flex; gap:8px; overflow-x:auto; padding:6px 22px 16px; }
+.chip-row::-webkit-scrollbar{ display:none; }
+.chip{
+  flex-shrink:0; padding:9px 16px; border-radius:100px; font-size:12.5px; font-weight:700;
+  background:rgba(244,235,231,.04); border:1px solid var(--line); color:var(--gray); transition:all .2s var(--ease);
+}
+.chip.active{ background:var(--crimson-dim); color:#ffe6e9; border-color:var(--crimson-bright); }
+
+.view-toggle{ margin:0 22px 8px; display:flex; padding:4px; border-radius:14px; background:rgba(244,235,231,.03); border:1px solid var(--line); }
+.view-toggle button{
+  flex:1; background:none; border:none; padding:10px; border-radius:11px; font-size:12.5px; font-weight:700; color:var(--gray);
+  transition:all .25s var(--ease);
+}
+.view-toggle button.active{ background:linear-gradient(155deg, var(--crimson-bright), var(--crimson-dim)); color:#fff; box-shadow:0 6px 16px -6px var(--glow); }
+
+.memory-item{ display:flex; gap:14px; padding:0 22px 26px; position:relative; }
+.memory-item .rail{ display:flex; flex-direction:column; align-items:center; flex-shrink:0; padding-top:4px;}
+.memory-item .rail .node{ width:10px; height:10px; border-radius:50%; background:var(--crimson-bright); box-shadow:0 0 10px var(--glow); flex-shrink:0; }
+.memory-item .rail .line{ width:1px; flex:1; background:linear-gradient(var(--line-2), transparent); margin-top:6px; }
+.memory-item .card{ flex:1; background:rgba(244,235,231,.03); border:1px solid var(--line); border-radius:18px; padding:16px; }
+.memory-item .cat{ font-size:10.5px; color:var(--crimson-bright); font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+.memory-item .title{ font-family:var(--serif); font-size:16px; margin-bottom:5px; }
+.memory-item .date{ font-size:11px; color:var(--gray-dim); margin-bottom:8px; text-transform:uppercase; letter-spacing:.03em; font-weight:700;}
+.memory-item .body{ font-size:13px; color:var(--gray); line-height:1.6; }
+
+.tl-year{ padding:22px 22px 6px; font-family:var(--serif); font-size:28px; color:var(--ivory-dim); font-style:italic; }
+.tl-item{ display:flex; gap:12px; padding:0 22px 22px; align-items:flex-start; }
+.tl-item .mark{ width:8px; height:8px; border-radius:50%; background:var(--crimson-bright); margin-top:7px; flex-shrink:0; box-shadow:0 0 10px var(--glow); }
+.tl-item .txt{ font-family:var(--serif); font-size:16px; color:var(--ivory); line-height:1.4; }
+
+/* empty state */
+.empty-state{ text-align:center; padding:50px 34px; }
+.empty-state .glyph{ font-size:26px; margin-bottom:14px; opacity:.7; }
+.empty-state .h{ font-family:var(--serif); font-style:italic; font-size:18px; color:var(--ivory-dim); margin-bottom:6px; }
+.empty-state .s{ font-size:13px; color:var(--gray); margin-bottom:22px; }
+
+/* ============================= PROFILE ============================= */
+.space-hero{ margin:0 22px 20px; padding:28px 22px; border-radius:24px; text-align:center;
+  background:linear-gradient(160deg, rgba(179,18,45,.14), rgba(28,15,17,.55));
+  border:1px solid var(--line-2); }
+.space-hero .heart{
+  width:56px; height:56px; margin:0 auto 14px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(circle at 35% 30%, rgba(216,32,63,.5), rgba(44,13,21,.25)); border:1px solid var(--line-2);
+}
+.space-hero .name{ font-family:var(--serif); font-size:22px; margin-bottom:6px; }
+.space-hero .since{ font-size:12px; color:var(--gray); margin-bottom:16px; }
+.space-hero .stats{ display:flex; justify-content:center; gap:28px; }
+.space-hero .stat b{ display:block; font-size:20px; font-family:var(--serif); color:var(--ivory); }
+.space-hero .stat span{ font-size:10.5px; color:var(--gray); text-transform:uppercase; letter-spacing:.04em; }
+
+.list-group{ margin:0 22px 20px; border-radius:20px; overflow:hidden; background:rgba(244,235,231,.03); border:1px solid var(--line); }
+.list-row{
+  display:flex; align-items:center; gap:14px; padding:16px 18px; border-bottom:1px solid var(--line);
+  transition:background .18s var(--ease);
+}
+.list-row:last-child{ border-bottom:none; }
+.list-row:active{ background:rgba(244,235,231,.05); }
+.list-row .ic{ width:34px; height:34px; border-radius:10px; background:rgba(244,235,231,.05); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.list-row .ic svg{ width:16px; height:16px; color:var(--ivory-dim); }
+.list-row .lbl{ flex:1; font-size:14.5px; font-weight:600; }
+.list-row .chev{ color:var(--gray-dim); }
+.toggle{
+  width:42px; height:25px; border-radius:100px; background:rgba(244,235,231,.1); position:relative; flex-shrink:0;
+  border:1px solid var(--line-2); transition:background .25s var(--ease);
+}
+.toggle::after{ content:''; position:absolute; top:2px; left:2px; width:19px; height:19px; border-radius:50%; background:var(--ivory-dim); transition:transform .25s var(--ease-spring), background .25s var(--ease); }
+.toggle.on{ background:var(--crimson-dim); border-color:var(--crimson-bright); }
+.toggle.on::after{ transform:translateX(17px); background:#fff2f2; }
+
+.danger-btn{
+  margin:8px 22px 30px; padding:16px; border-radius:16px; text-align:center; font-size:14px; font-weight:700;
+  background:rgba(179,18,45,.07); border:1px solid rgba(179,18,45,.25); color:#e46274;
+}
+
+/* ============================= SHEETS / MODALS ============================= */
+.sheet-backdrop{
+  position:absolute; inset:0; background:rgba(5,3,3,.6); backdrop-filter:blur(2px);
+  opacity:0; visibility:hidden; transition:opacity .35s var(--ease), visibility 0s .35s; z-index:20;
+}
+.sheet-backdrop.show{ opacity:1; visibility:visible; transition:opacity .35s var(--ease); }
+.sheet{
+  position:absolute; left:0; right:0; bottom:0; z-index:21;
+  max-height:92%; border-radius:28px 28px 0 0;
+  background:linear-gradient(180deg, var(--charcoal-2), var(--charcoal) 40%);
+  border-top:1px solid var(--line-2);
+  transform:translateY(100%);
+  transition:transform .48s var(--ease-spring);
+  display:flex; flex-direction:column;
+  box-shadow:0 -20px 60px rgba(0,0,0,.5);
+}
+.sheet.show{ transform:translateY(0); }
+.sheet-grab{ width:40px; height:4px; border-radius:4px; background:var(--line-2); margin:12px auto 4px; flex-shrink:0; }
+.sheet-head{ display:flex; align-items:center; justify-content:space-between; padding:10px 20px 6px; flex-shrink:0; }
+.sheet-body{ flex:1; overflow-y:auto; padding:6px 22px 30px; -webkit-overflow-scrolling:touch; }
+.sheet-body::-webkit-scrollbar{ display:none; }
+.sheet-full{ max-height:100%; border-radius:0; height:100%; }
+
+/* full-screen sheet variant (editor / reader) */
+.sheet-fs{ position:absolute; inset:0; z-index:22; background:var(--black);
+  transform:translateY(3%); opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .4s var(--ease), transform .4s var(--ease), visibility 0s .4s;
+  display:flex; flex-direction:column; }
+.sheet-fs.show{ transform:translateY(0); opacity:1; visibility:visible; pointer-events:auto; transition:opacity .42s var(--ease), transform .42s var(--ease); }
+
+/* mood selector */
+.mood-row{ display:flex; gap:8px; flex-wrap:wrap; }
+.mood-opt{
+  flex:1; min-width:60px; display:flex; flex-direction:column; align-items:center; gap:6px; padding:14px 4px;
+  border-radius:16px; background:rgba(244,235,231,.03); border:1px solid var(--line); transition:all .22s var(--ease-spring);
+}
+.mood-opt .em{ font-size:22px; transition:transform .22s var(--ease-spring); }
+.mood-opt .lb{ font-size:10px; color:var(--gray); font-weight:700; text-transform:uppercase; letter-spacing:.02em; }
+.mood-opt.sel{ background:linear-gradient(160deg, rgba(179,18,45,.2), rgba(28,15,17,.6)); border-color:var(--crimson-dim); box-shadow:0 8px 22px -8px var(--glow); }
+.mood-opt.sel .em{ transform:scale(1.2) translateY(-2px); }
+.mood-opt.sel .lb{ color:var(--ivory); }
+
+/* editor */
+.editor-title-input{
+  font-family:var(--serif); font-size:22px; background:none; border:none; color:var(--ivory); width:100%;
+  outline:none; padding:14px 0 8px; border-bottom:1px solid var(--line);
+}
+.editor-title-input::placeholder{ color:var(--gray-dim); font-style:italic; }
+.editor-body-input{
+  font-family:var(--serif); font-size:16px; line-height:1.8; background:none; border:none; color:var(--ivory-dim);
+  width:100%; outline:none; resize:none; min-height:200px; padding:16px 0;
+}
+.editor-body-input::placeholder{ color:var(--gray-dim); font-style:italic; }
+.editor-hint{ font-size:12px; color:var(--gray-dim); font-style:italic; margin-top:-6px; margin-bottom:4px;}
+
+.vis-toggle{ display:flex; gap:10px; padding:14px 0; }
+.vis-opt{
+  flex:1; display:flex; align-items:center; justify-content:center; gap:8px; padding:14px 10px; border-radius:14px;
+  background:rgba(244,235,231,.03); border:1px solid var(--line); font-size:13px; font-weight:700; color:var(--gray);
+  transition:all .22s var(--ease);
+}
+.vis-opt svg{ width:15px; height:15px; }
+.vis-opt.sel{ background:linear-gradient(160deg, rgba(179,18,45,.18), rgba(28,15,17,.55)); border-color:var(--crimson-dim); color:var(--ivory); }
+
+/* diary / letter reader */
+.reader-date{ font-family:var(--serif); font-style:italic; font-size:15px; color:var(--gray); margin-bottom:6px;}
+.reader-mood{ font-size:26px; margin-bottom:14px; }
+.reader-title{ font-family:var(--serif); font-size:28px; line-height:1.25; color:var(--ivory); margin-bottom:18px;}
+.reader-body{ font-family:var(--serif); font-size:17px; line-height:1.95; color:#e3d6d2; white-space:pre-line; }
+.reader-signoff{ margin-top:34px; padding-top:20px; border-top:1px solid var(--line); font-size:13px; color:var(--gray); display:flex; flex-direction:column; gap:6px;}
+.reply-box{ margin-top:22px; }
+.reply-box textarea{
+  width:100%; background:rgba(244,235,231,.04); border:1px solid var(--line-2); border-radius:16px; padding:14px;
+  color:var(--ivory); font-family:var(--sans); font-size:14px; min-height:70px; resize:none; outline:none;
+}
+
+/* search */
+.search-input-wrap{ display:flex; align-items:center; gap:10px; background:rgba(244,235,231,.05); border:1px solid var(--line-2); border-radius:16px; padding:14px 16px; margin-bottom:6px;}
+.search-input-wrap svg{ width:16px; height:16px; color:var(--gray); flex-shrink:0; }
+.search-input-wrap input{ flex:1; background:none; border:none; outline:none; color:var(--ivory); font-size:15px; }
+.search-input-wrap input::placeholder{ color:var(--gray-dim); }
+.search-result{ display:flex; gap:12px; align-items:flex-start; padding:14px 0; border-bottom:1px solid var(--line); }
+.search-result .k{ font-size:10px; text-transform:uppercase; letter-spacing:.04em; font-weight:700; color:var(--crimson-bright); margin-bottom:3px;}
+.search-result .t{ font-family:var(--serif); font-size:15px; color:var(--ivory); margin-bottom:2px;}
+.search-result .d{ font-size:11px; color:var(--gray-dim); }
+
+/* skeleton */
+.skel{ background:linear-gradient(100deg, rgba(244,235,231,.04) 30%, rgba(244,235,231,.09) 50%, rgba(244,235,231,.04) 70%); background-size:200% 100%; animation:shimmer 1.6s infinite; border-radius:16px; }
+@keyframes shimmer{ from{ background-position:180% 0; } to{ background-position:-20% 0; } }
+
+/* toast */
+#toast{
+  position:absolute; left:50%; bottom:100px; transform:translate(-50%, 20px); z-index:60;
+  background:rgba(20,13,14,.95); border:1px solid var(--line-2); color:var(--ivory);
+  padding:13px 20px; border-radius:100px; font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:all .38s var(--ease-spring);
+  display:flex; align-items:center; gap:8px; box-shadow:0 14px 30px rgba(0,0,0,.4);
+  white-space:nowrap;
+}
+#toast.show{ opacity:1; transform:translate(-50%, 0); }
+#toast .dot{ width:6px; height:6px; border-radius:50%; background:var(--crimson-bright); }
+
+/* delete confirm modal */
+.confirm-modal{
+  position:absolute; inset:0; z-index:30; display:flex; align-items:center; justify-content:center; padding:30px;
+  opacity:0; visibility:hidden; transition:opacity .3s var(--ease), visibility 0s .3s;
+}
+.confirm-modal.show{ opacity:1; visibility:visible; transition:opacity .3s var(--ease); }
+.confirm-modal .backdrop{ position:absolute; inset:0; background:rgba(5,3,3,.72); backdrop-filter:blur(3px); }
+.confirm-box{
+  position:relative; width:100%; background:var(--charcoal-2); border:1px solid var(--line-2); border-radius:22px; padding:26px;
+  text-align:center; transform:scale(.92); transition:transform .35s var(--ease-spring);
+}
+.confirm-modal.show .confirm-box{ transform:scale(1); }
+.confirm-box .glyph{ font-size:26px; margin-bottom:12px; }
+.confirm-box h3{ font-family:var(--serif); font-size:19px; margin-bottom:10px; }
+.confirm-box p{ font-size:13px; color:var(--gray); line-height:1.6; margin-bottom:22px; }
+.confirm-box .row{ display:flex; gap:10px; }
+
+/* misc */
+.spacer-24{ height:24px; }
+.center-txt{ text-align:center; }
+.hidden{ display:none !important; }
+
+/* ===================== VELVET / PREMIUM VISUAL SYSTEM ===================== */
+:root{
+  --black:#070506;
+  --charcoal:#100b0d;
+  --charcoal-2:#171012;
+  --charcoal-3:#211619;
+  --wine:#300a14;
+  --wine-2:#4a101d;
+  --crimson:#b91532;
+  --crimson-bright:#e23a58;
+  --crimson-dim:#7f1427;
+  --glow:rgba(226,58,88,.34);
+  --glow-soft:rgba(226,58,88,.12);
+  --ivory:#f7efec;
+  --ivory-dim:#cfc0bc;
+  --gray:#958583;
+  --gray-dim:#5e5352;
+  --line:rgba(247,239,236,.085);
+  --line-2:rgba(247,239,236,.15);
+  --gold:#c9a86a;
+  --gold-soft:rgba(201,168,106,.18);
+  --serif:'Fraunces', Georgia, serif;
+  --sans:'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-spring:cubic-bezier(.34,1.56,.64,1);
+}
+body{
+  background:
+    radial-gradient(900px 600px at 12% -12%, rgba(226,58,88,.13), transparent 62%),
+    radial-gradient(700px 520px at 100% 12%, rgba(104,25,42,.30), transparent 60%),
+    radial-gradient(700px 500px at 50% 120%, rgba(52,19,26,.22), transparent 65%),
+    #030303;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:100% 4px;opacity:.22;mix-blend-mode:soft-light;
+}
+.phone-frame{
+  width:402px;height:860px;padding:9px;border-radius:48px;
+  background:linear-gradient(145deg,#3b2429 0%,#171012 28%,#080607 65%,#28151a 100%);
+  box-shadow:
+    0 50px 120px rgba(0,0,0,.78),
+    0 0 0 1px rgba(255,255,255,.075) inset,
+    0 0 0 2px rgba(0,0,0,.8),
+    0 0 80px rgba(146,21,43,.09);
+}
+.app{
+  border-radius:40px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.012),transparent 28%),
+    #080607;
+}
+.app::before{
+  background:
+    radial-gradient(ellipse 520px 380px at 0% 0%,rgba(226,58,88,.12),transparent 63%),
+    radial-gradient(ellipse 480px 520px at 100% 100%,rgba(74,16,29,.34),transparent 62%);
+}
+.notch{width:126px;height:28px;top:7px;box-shadow:0 0 0 1px rgba(255,255,255,.025) inset,0 4px 15px rgba(0,0,0,.7)}
+.wordmark{
+  font-size:35px;letter-spacing:.19em;text-shadow:0 2px 28px rgba(255,255,255,.08);
+}
+.eyebrow{letter-spacing:.24em;font-size:10px;color:#9e8c89}
+.btn{
+  min-height:54px;border-radius:15px;padding:16px 20px;
+  box-shadow:0 1px 0 rgba(255,255,255,.04) inset;
+}
+.btn-primary{
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.11),transparent 34%),
+    linear-gradient(155deg,#e13a58 0%,#9b1730 52%,#70101f 100%);
+  box-shadow:
+    0 15px 32px -14px rgba(226,58,88,.55),
+    0 0 0 1px rgba(255,255,255,.09) inset,
+    0 1px 0 rgba(255,255,255,.15) inset;
+}
+.btn-primary:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.btn-ghost{
+  background:rgba(255,255,255,.035);
+  border-color:rgba(255,255,255,.13);
+  box-shadow:0 1px 0 rgba(255,255,255,.035) inset;
+}
+.btn-text{min-height:auto}
+.icon-btn{
+  width:40px;height:40px;
+  background:linear-gradient(145deg,rgba(255,255,255,.065),rgba(255,255,255,.025));
+  border-color:rgba(255,255,255,.11);
+  box-shadow:0 4px 14px rgba(0,0,0,.16),0 1px 0 rgba(255,255,255,.05) inset;
+}
+.icon-btn svg{width:17px;height:17px}
+.field input,.field-input,.date-picker-mini select{
+  background:linear-gradient(145deg,rgba(255,255,255,.052),rgba(255,255,255,.022));
+  border-color:rgba(255,255,255,.12);
+  box-shadow:0 8px 24px rgba(0,0,0,.12) inset;
+}
+.field input:focus,.field-input:focus{
+  border-color:rgba(226,58,88,.75);
+  box-shadow:0 0 0 3px rgba(226,58,88,.11),0 8px 24px rgba(0,0,0,.16) inset;
+}
+.onb-crest,.space-hero .heart{
+  position:relative;
+  background:
+    radial-gradient(circle at 35% 28%,rgba(255,96,120,.68),rgba(126,18,39,.24) 42%,rgba(20,8,11,.45) 75%);
+  border-color:rgba(255,255,255,.14);
+  box-shadow:0 0 0 1px rgba(201,168,106,.08),0 0 70px rgba(226,58,88,.18),0 12px 34px rgba(0,0,0,.35);
+}
+.onb-crest::after,.space-hero .heart::after{
+  content:"";position:absolute;inset:7px;border-radius:50%;
+  border:1px solid rgba(201,168,106,.28);
+}
+.onb-crest .ui-icon,.space-hero .ui-icon{position:relative;z-index:2}
+.onb-tagline{letter-spacing:.01em}
+.onb-sub{color:#8f817f}
+.topbar{padding-top:20px}
+.stepper-body{padding-left:26px;padding-right:26px}
+.step-dot{height:5px;width:5px}
+.step-dot.on{width:22px;background:var(--crimson-bright);box-shadow:0 0 12px rgba(226,58,88,.45)}
+.app-topbar{
+  padding:25px 22px 6px;
+  border-bottom:1px solid rgba(255,255,255,.025);
+}
+.app-topbar .meta{color:#827371;letter-spacing:.07em}
+.app-topbar .meta .dot{width:5px;height:5px;background:var(--gold);box-shadow:0 0 9px rgba(201,168,106,.45)}
+.greeting{font-size:26px;letter-spacing:-.02em}
+.counter-pill{
+  background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));
+  border-color:rgba(255,255,255,.10);
+  box-shadow:0 10px 24px rgba(0,0,0,.15),0 1px 0 rgba(255,255,255,.05) inset;
+}
+.counter-pill .ui-icon{color:var(--gold)}
+.section-pad{padding:20px 20px 8px}
+.prompt-card{
+  min-height:210px;border-radius:26px;padding:28px 24px;
+  background:
+    linear-gradient(125deg,rgba(255,255,255,.055),transparent 32%),
+    radial-gradient(circle at 85% 15%,rgba(226,58,88,.28),transparent 34%),
+    linear-gradient(145deg,rgba(83,15,28,.72),rgba(19,10,13,.9) 72%);
+  border-color:rgba(255,255,255,.13);
+  box-shadow:0 24px 55px -34px rgba(226,58,88,.5),0 15px 45px rgba(0,0,0,.28),0 1px 0 rgba(255,255,255,.07) inset;
+}
+.prompt-card::before{
+  content:"";position:absolute;left:24px;top:0;width:46px;height:2px;
+  background:linear-gradient(90deg,var(--gold),transparent);opacity:.7;
+}
+.prompt-card::after{background:radial-gradient(circle,rgba(226,58,88,.28),transparent 68%)}
+.prompt-card .q{font-size:22px;line-height:1.46;max-width:300px}
+.prompt-card .btn{margin-top:28px;min-width:190px}
+.sec-head{padding:24px 22px 11px}
+.sec-head .link{color:#aa9996}
+.otd-card,.diary-card,.letter-card,.memory-item .card,.list-group,.view-toggle{
+  background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
+  border-color:rgba(255,255,255,.095);
+  box-shadow:0 12px 34px rgba(0,0,0,.14),0 1px 0 rgba(255,255,255,.035) inset;
+}
+.otd-card{padding:18px 18px;border-radius:22px}
+.otd-icon{
+  background:linear-gradient(145deg,rgba(226,58,88,.24),rgba(53,12,21,.4));
+  border-color:rgba(201,168,106,.22);
+  color:var(--gold);
+}
+.diary-card{padding:19px;border-radius:21px;margin-bottom:13px}
+.diary-card:hover,.letter-card:hover,.otd-card:hover{border-color:rgba(226,58,88,.28);transform:translateY(-1px)}
+.badge-shared{background:rgba(226,58,88,.12);color:#f28b9d;border:1px solid rgba(226,58,88,.16)}
+.badge-private{background:rgba(255,255,255,.045);color:#988987;border:1px solid rgba(255,255,255,.07)}
+.bottom-nav{
+  padding:10px 10px calc(15px + env(safe-area-inset-bottom));
+  background:rgba(9,7,8,.86);
+  border-top-color:rgba(255,255,255,.08);
+  box-shadow:0 -18px 40px rgba(0,0,0,.22);
+}
+.nav-btn{position:relative;gap:6px;color:#625958}
+.nav-btn span{font-size:9px;letter-spacing:.08em}
+.nav-btn.active{color:#f1e7e4}
+.nav-btn.active::before{
+  content:"";position:absolute;top:-10px;width:22px;height:2px;border-radius:4px;
+  background:linear-gradient(90deg,transparent,var(--crimson-bright),transparent);
+  box-shadow:0 0 12px rgba(226,58,88,.45);
+}
+.fab{
+  width:58px;height:58px;right:19px;bottom:101px;
+  background:linear-gradient(145deg,#ed4a68,#97152d);
+  box-shadow:0 18px 36px -10px rgba(226,58,88,.58),0 0 0 1px rgba(255,255,255,.1) inset;
+}
+.fab::after{
+  content:"";position:absolute;inset:-5px;border:1px solid rgba(226,58,88,.16);border-radius:50%;
+}
+.date-strip{padding:15px 22px 5px}
+.date-chip{
+  background:rgba(255,255,255,.025);
+  border-color:rgba(255,255,255,.08);
+}
+.date-chip.sel{
+  background:linear-gradient(145deg,rgba(226,58,88,.28),rgba(68,12,24,.78));
+  border-color:rgba(226,58,88,.62);
+  box-shadow:0 0 0 1px rgba(226,58,88,.18),0 12px 26px -12px rgba(226,58,88,.48);
+}
+.letter-card{padding:23px;border-radius:23px}
+.letter-card::before{height:3px;background:linear-gradient(90deg,var(--gold),var(--crimson-bright),transparent)}
+.letter-card .seal{
+  background:radial-gradient(circle at 35% 30%,rgba(226,58,88,.55),rgba(45,10,18,.4));
+  border-color:rgba(201,168,106,.22);color:#e6c98f;
+}
+.chip{background:rgba(255,255,255,.028);border-color:rgba(255,255,255,.08)}
+.chip.active{background:linear-gradient(145deg,#a91b36,#701022);border-color:#d73a56;box-shadow:0 8px 20px -12px rgba(226,58,88,.55)}
+.view-toggle button.active{background:linear-gradient(145deg,#d53857,#851326);box-shadow:0 8px 20px -8px rgba(226,58,88,.45)}
+.memory-item .rail .node,.tl-item .mark{background:var(--gold);box-shadow:0 0 10px rgba(201,168,106,.35)}
+.memory-item .rail .line{background:linear-gradient(var(--gold-soft),transparent)}
+.space-hero{
+  margin:0 20px 22px;padding:31px 22px;border-radius:27px;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.05),transparent 32%),
+    radial-gradient(circle at 50% 0%,rgba(226,58,88,.20),transparent 50%),
+    linear-gradient(160deg,rgba(66,14,26,.72),rgba(22,10,13,.85));
+  border-color:rgba(255,255,255,.12);
+  box-shadow:0 22px 48px -30px rgba(226,58,88,.45),0 15px 40px rgba(0,0,0,.25);
+}
+.space-hero .stats{padding-top:3px}
+.space-hero .stat b{font-size:22px}
+.list-group{margin:0 20px 20px;border-radius:22px}
+.list-row{padding:16px 17px}
+.list-row .ic{
+  width:36px;height:36px;border-radius:11px;
+  background:linear-gradient(145deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+  border:1px solid rgba(255,255,255,.07);
+}
+.list-row .ic svg{width:17px;height:17px;color:#c8b8b4}
+.list-row .chev{font-size:18px;color:#6d5e5c}
+.toggle.on{background:linear-gradient(90deg,#8e1428,#c72745);border-color:#d43a56}
+.sheet-backdrop{background:rgba(2,1,2,.72);backdrop-filter:blur(9px) saturate(120%)}
+.sheet{
+  background:linear-gradient(180deg,#1a1013,#0d090b 72%);
+  border-top-color:rgba(255,255,255,.13);
+  box-shadow:0 -28px 80px rgba(0,0,0,.62);
+}
+.sheet-grab{background:rgba(255,255,255,.18)}
+.sheet-fs{background:
+  radial-gradient(ellipse 700px 500px at 50% -15%,rgba(226,58,88,.08),transparent 62%),
+  #080607}
+.mood-opt{
+  background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.08);
+}
+.mood-opt.sel{
+  background:linear-gradient(145deg,rgba(226,58,88,.18),rgba(41,10,18,.62));
+  border-color:rgba(226,58,88,.58);
+}
+.mood-opt .em{font-size:20px}
+.editor-title-input{font-size:24px}
+.reader-title{font-size:30px}
+.reader-body{font-size:17px;line-height:2}
+.confirm-box{
+  background:linear-gradient(145deg,#1c1114,#0f0a0c);
+  border-color:rgba(255,255,255,.12);
+  box-shadow:0 28px 70px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.05) inset;
+}
+#toast{
+  background:rgba(19,11,13,.96);border-color:rgba(255,255,255,.12);
+  box-shadow:0 18px 40px rgba(0,0,0,.48),0 1px 0 rgba(255,255,255,.05) inset;
+}
+.ui-icon{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
+.ui-icon svg{width:1em;height:1em;display:block}
+.icon-btn .ui-icon svg{width:17px;height:17px}
+.counter-pill .ui-icon{font-size:13px}
+.onb-crest .ui-icon,.space-hero .ui-icon{font-size:21px;color:#f6d6dc}
+.mood svg{width:19px;height:19px}
+.empty-state .glyph{color:var(--gold);opacity:.8}
+.confirm-box .glyph{color:var(--gold);font-size:25px}
+@media (max-width:430px){
+  .phone-frame{width:100vw;height:100dvh}
+}
+
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+<div class="app" id="app">
+<div class="notch"></div>
+
+<!-- ============ ONBOARDING ============ -->
+<section class="screen active" id="screen-onboarding">
+  <div class="onb-crest"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"/></svg></span></div>
+  <div class="wordmark onb-title">VELVET</div>
+  <div class="onb-tagline">"Just us."</div>
+  <p class="onb-sub">Some things are worth keeping. A private space, just for the two of you.</p>
+  <div class="onb-actions">
+    <button class="btn btn-primary btn-block" onclick="goScreen('create')">Create our space</button>
+    <button class="btn btn-ghost btn-block" onclick="goScreen('login')">I have an invitation</button>
+  </div>
+</section>
+
+<!-- ============ CREATE OUR SPACE (stepper) ============ -->
+<section class="screen" id="screen-create">
+  <div class="topbar">
+    <button class="icon-btn" onclick="goScreen('onboarding')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="step-dots" id="stepDots"></div>
+  </div>
+  <div class="stepper-body">
+
+    <div class="step-pane active" data-step="1">
+      <div class="step-head"><span class="eyebrow">Getting started</span><h2>What should we call you?</h2></div>
+      <div class="field"><label>Your name</label><input type="text" id="inpYou" placeholder="e.g. Aditya" value="Aditya"></div>
+      <div class="field"><label>Partner's name</label><input type="text" id="inpPartner" placeholder="e.g. Meher" value="Meher"></div>
+      <div class="step-foot"><button class="btn btn-primary btn-block" onclick="nextStep()">Continue</button></div>
+    </div>
+
+    <div class="step-pane" data-step="2">
+      <div class="step-head"><span class="eyebrow">Name it</span><h2>Our space needs a name.</h2></div>
+      <div class="field"><label>Space name</label><input type="text" id="inpSpace" placeholder='e.g. "Aditya &amp; Her"'></div>
+      <div class="name-preview" id="namePreview">Aditya &amp; Meher</div>
+      <div class="step-foot"><button class="btn btn-primary btn-block" onclick="nextStep()">Continue</button></div>
+    </div>
+
+    <div class="step-pane" data-step="3">
+      <div class="step-head"><span class="eyebrow">Almost there</span><h2>Together since</h2></div>
+      <div class="date-picker-mini">
+        <select id="selDay"></select>
+        <select id="selMonth"></select>
+        <select id="selYear"></select>
+      </div>
+      <div class="step-foot"><button class="btn btn-primary btn-block" onclick="createSpace()">Create our little world</button></div>
+    </div>
+
+    <div class="step-pane" data-step="4">
+      <div class="step-head"><span class="eyebrow">Our space is ready</span><h2 id="createdHeadline">Aditya &amp; Meher</h2></div>
+      <p style="font-size:13px; color:var(--gray); line-height:1.6;">Send this invitation to your partner so they can step inside, too.</p>
+      <div class="invite-code">
+        <div class="eyebrow">Invitation code</div>
+        <div class="code" id="inviteCode">VLVT-7X2M</div>
+        <div class="hint">Valid for 7 days · velvet.app/join</div>
+      </div>
+      <div class="step-foot"><button class="btn btn-primary btn-block" onclick="enterApp()">Enter our space</button></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ LOGIN ============ -->
+<section class="screen" id="screen-login">
+  <div class="topbar"><button class="icon-btn" onclick="goScreen('onboarding')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>
+  </button></div>
+  <div style="flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 30px;">
+    <div class="login-head">
+      <div class="wordmark" style="font-size:26px;">VELVET</div>
+      <p class="onb-tagline" style="margin-top:8px;">Welcome back.</p>
+    </div>
+    <div class="login-form">
+      <div class="field"><label>Email</label><input type="email" placeholder="you@example.com"></div>
+      <div class="field"><label>Password</label><input type="password" placeholder="••••••••"></div>
+      <button class="btn btn-primary btn-block" style="margin-top:6px;" onclick="enterApp()">Log in</button>
+      <button class="btn btn-text center-txt">Forgot password</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MAIN APP ============ -->
+<div class="main-app" id="mainApp">
+  <div class="tab-panels" id="tabPanels">
+
+    <!-- HOME -->
+    <section class="tab-panel active" id="tab-home">
+      <div class="app-topbar">
+        <div>
+          <div class="meta"><span class="dot"></span>Private space · 2 members</div>
+          <div class="greeting" id="homeGreeting">Good evening, Aditya.</div>
+          <div class="counter-pill"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"/></svg></span> <b id="homeDaysCount">—</b>&nbsp;days together</div>
+        </div>
+        <button class="icon-btn" onclick="openSearch()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </button>
+      </div>
+
+      <div class="section-pad">
+        <div class="prompt-card">
+          <div class="q" id="dailyPrompt">What do you want to remember about today?</div>
+          <button class="btn btn-primary" onclick="openEditor()">Write today's diary</button>
+        </div>
+      </div>
+
+      <div class="sec-head"><span class="eyebrow">On this day</span></div>
+      <div class="otd-card" onclick="openOnThisDay()">
+        <div class="otd-icon"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 10h6v10H9z"/><path d="M8 20h8"/><path d="M12 3c1.4 1.5 1.3 2.8 0 4-1.3-1.2-1.4-2.5 0-4Z"/><path d="M10 10h4"/></svg></span></div>
+        <div>
+          <div class="t">3 years ago</div>
+          <div class="x" id="otdPreviewText">"Neither of us knew how important that evening would become."</div>
+        </div>
+      </div>
+
+      <div class="sec-head"><span class="eyebrow">Recently</span><span class="link" onclick="switchTab('journal')">See all</span></div>
+      <div id="homeRecents"></div>
+      <div style="height:10px;"></div>
+    </section>
+
+    <!-- JOURNAL -->
+    <section class="tab-panel" id="tab-journal">
+      <div class="app-topbar" style="padding-bottom:0;">
+        <div>
+          <div class="greeting" style="font-size:22px;">Journal</div>
+          <p style="font-size:13px; color:var(--gray); margin-top:4px; font-style:italic; font-family:var(--serif);">Every day has a story.</p>
+        </div>
+        <button class="icon-btn" onclick="openEditor()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+      <div class="month-nav">
+        <button class="icon-btn" style="width:30px;height:30px;" onclick="shiftMonth(-1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <div class="lbl" id="monthLabel">August 2026</div>
+        <button class="icon-btn" style="width:30px;height:30px;" onclick="shiftMonth(1)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <div class="date-strip" id="dateStrip"></div>
+      <div class="sec-head"><span class="eyebrow" id="journalListLabel">This month</span></div>
+      <div id="journalList"></div>
+    </section>
+
+    <!-- LETTERS -->
+    <section class="tab-panel" id="tab-letters">
+      <div class="app-topbar">
+        <div>
+          <div class="greeting" style="font-size:22px;">Letters</div>
+          <p style="font-size:13px; color:var(--gray); margin-top:4px; font-style:italic; font-family:var(--serif);">Things that deserve more than a message.</p>
+        </div>
+        <button class="icon-btn" onclick="openLetterEditor()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+      <div class="spacer-24"></div>
+      <div id="lettersList"></div>
+    </section>
+
+    <!-- MEMORIES -->
+    <section class="tab-panel" id="tab-memories">
+      <div class="app-topbar">
+        <div>
+          <div class="greeting" style="font-size:22px;">Memories</div>
+          <p style="font-size:13px; color:var(--gray); margin-top:4px; font-style:italic; font-family:var(--serif);">Moments worth keeping, in words.</p>
+        </div>
+      </div>
+      <div class="view-toggle">
+        <button class="active" id="viewMoments" onclick="setMemView('moments')">Moments</button>
+        <button id="viewTimeline" onclick="setMemView('timeline')">Timeline</button>
+      </div>
+      <div class="chip-row" id="memChips"></div>
+      <div id="memoriesList"></div>
+      <div id="timelineList" class="hidden"></div>
+    </section>
+
+    <!-- PROFILE -->
+    <section class="tab-panel" id="tab-profile">
+      <div class="app-topbar"><div class="greeting" style="font-size:22px;">Our space</div></div>
+      <div class="spacer-24"></div>
+      <div class="space-hero">
+        <div class="heart"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"/></svg></span></div>
+        <div class="name" id="spaceHeroName">Aditya &amp; Meher</div>
+        <div class="since" id="spaceHeroSince">Together since 24 July 2021</div>
+        <div class="stats">
+          <div class="stat"><b id="spaceHeroDays">—</b><span>Days</span></div>
+          <div class="stat"><b id="spaceHeroEntries">—</b><span>Entries</span></div>
+          <div class="stat"><b id="spaceHeroLetters">—</b><span>Letters</span></div>
+        </div>
+      </div>
+
+      <div class="list-group">
+        <div class="list-row" onclick="toast('My account')"><div class="ic"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.4-4.1 4-6 7.5-6s6.1 1.9 7.5 6"/></svg></span></div><div class="lbl">My account</div><div class="chev">›</div></div>
+        <div class="list-row" onclick="toast('Meher · Partner')"><div class="ic"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"/></svg></span></div><div class="lbl">Partner</div><div class="chev">›</div></div>
+        <div class="list-row" onclick="toast('Only the two of you can ever see this space.')"><div class="ic"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span></div><div class="lbl">Privacy</div><div class="chev">›</div></div>
+        <div class="list-row" onclick="toast('Security settings')"><div class="ic"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 20 6v5c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></svg></span></div><div class="lbl">Security</div><div class="chev">›</div></div>
+        <div class="list-row" onclick="toast('Theme: Midnight Wine')"><div class="ic"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a8 8 0 1 0 0 16h1.2a1.8 1.8 0 0 0 1.8-1.8c0-1-.8-1.8-1.8-1.8h-.8a2 2 0 0 1 0-4h1.4A6.2 6.2 0 0 0 12 4Z"/><circle cx="7.5" cy="10" r=".8"/><circle cx="10" cy="7.5" r=".8"/><circle cx="14" cy="7.5" r=".8"/></svg></span></div><div class="lbl">Theme</div><div class="chev">›</div></div>
+        <div class="list-row" onclick="toggleRow(this,'notif')"><div class="ic"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></span></div><div class="lbl">Notifications</div><div class="toggle on" id="toggleNotif"></div></div>
+        <div class="list-row" onclick="toast('Invitation copied')"><div class="ic"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span></div><div class="lbl">Invite partner</div><div class="chev">›</div></div>
+        <div class="list-row" onclick="toggleRow(this,'lock')"><div class="ic"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15" r="1"/></svg></span></div><div class="lbl">Lock app</div><div class="toggle" id="toggleLock"></div></div>
+      </div>
+
+      <div class="danger-btn" onclick="openDeleteConfirm()">Delete our space</div>
+    </section>
+
+  </div>
+
+  <button class="fab" id="fabWrite" onclick="openEditor()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+  </button>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="home" onclick="switchTab('home')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-btn" data-tab="journal" onclick="switchTab('journal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 0 4 22.5"/><path d="M4 4.5v16A2.5 2.5 0 0 0 6.5 23H20"/></svg>
+      <span>Journal</span>
+    </button>
+    <button class="nav-btn" data-tab="letters" onclick="switchTab('letters')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+      <span>Letters</span>
+    </button>
+    <button class="nav-btn" data-tab="memories" onclick="switchTab('memories')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.7-10-9.3C.4 8 2.3 4 6.3 4c2.1 0 3.7 1.4 5.7 3.9C13.9 5.4 15.5 4 17.7 4c4 0 5.9 4 4.3 7.7C19.5 16.3 12 21 12 21z"/></svg>
+      <span>Memories</span>
+    </button>
+    <button class="nav-btn" data-tab="profile" onclick="switchTab('profile')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4.5 5-6 8-6s6.5 1.5 8 6"/></svg>
+      <span>Space</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ============ SHEETS ============ -->
+<div class="sheet-backdrop" id="backdrop" onclick="closeAllSheets()"></div>
+
+<!-- diary editor (full screen) -->
+<div class="sheet-fs" id="sheetEditor">
+  <div class="sheet-head" style="padding-top:20px;">
+    <button class="icon-btn" onclick="closeEditor()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+    <span class="eyebrow" id="editorDateLabel">Today · Aug 9</span>
+    <div style="width:38px;"></div>
+  </div>
+  <div class="sheet-body">
+    <div class="eyebrow" style="margin-top:10px;">How are you feeling?</div>
+    <div class="mood-row" id="moodRow" style="margin-top:12px;"></div>
+
+    <input type="text" class="editor-title-input" id="editorTitle" placeholder="What happened today?">
+    <div class="editor-hint">Something I want to remember...</div>
+    <textarea class="editor-body-input" id="editorBody" placeholder="Something I want to tell you..."></textarea>
+
+    <div class="eyebrow">Who can see this</div>
+    <div class="vis-toggle">
+      <button class="vis-opt sel" id="visPrivate" onclick="setVisibility('private')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        Private
+      </button>
+      <button class="vis-opt" id="visShared" onclick="setVisibility('shared')"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"/></svg></span> Shared with us</button>
+    </div>
+
+    <button class="btn btn-primary btn-block" style="margin-top:8px;" onclick="saveEntry()">Keep this memory</button>
+  </div>
+</div>
+
+<!-- diary reader (full screen) -->
+<div class="sheet-fs" id="sheetReader">
+  <div class="sheet-head" style="padding-top:20px;">
+    <button class="icon-btn" onclick="closeSheetFs('sheetReader')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <span id="readerBadge" class="badge badge-shared">Shared</span>
+    <div style="width:38px;"></div>
+  </div>
+  <div class="sheet-body">
+    <div class="reader-date" id="readerDate">08 August 2026</div>
+    <div class="reader-mood" id="readerMood"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14.5h7"/><path d="M9 10h.01M15 10h.01"/></svg></span></div>
+    <div class="reader-title serif" id="readerTitle">That ordinary evening</div>
+    <div class="reader-body" id="readerBody"></div>
+    <div class="reader-signoff">
+      <span id="readerAuthor">Written by Aditya</span>
+      <span id="readerShared">Shared with you</span>
+    </div>
+    <div class="reply-box" id="replyBox">
+      <div class="eyebrow" style="margin-bottom:8px;">Reply</div>
+      <textarea placeholder="Write a little reply..." id="replyInput"></textarea>
+      <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="sendReply()">Send reply</button>
+      <div id="replyShown" style="display:none; margin-top:14px; padding:14px; border-radius:14px; background:rgba(179,18,45,.08); border:1px solid var(--line-2); font-size:13.5px; font-style:italic; font-family:var(--serif); color:var(--ivory-dim);"></div>
+    </div>
+  </div>
+</div>
+
+<!-- letter reader (full screen, page-turn style) -->
+<div class="sheet-fs" id="sheetLetterReader">
+  <div class="sheet-head" style="padding-top:20px;">
+    <button class="icon-btn" onclick="closeSheetFs('sheetLetterReader')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <span class="eyebrow">Letter</span>
+    <div style="width:38px;"></div>
+  </div>
+  <div class="sheet-body" id="letterReaderBody">
+    <div class="reader-date" id="letterDate">14 Feb 2026</div>
+    <div class="reader-title serif" id="letterTitle">To you, on a difficult day</div>
+    <div class="reader-body" id="letterBody"></div>
+    <div class="reader-signoff"><span id="letterAuthor">Written by Aditya</span></div>
+  </div>
+</div>
+
+<!-- letter editor -->
+<div class="sheet" id="sheetLetterEditor">
+  <div class="sheet-grab"></div>
+  <div class="sheet-head"><span class="eyebrow">Write a letter</span>
+    <button class="icon-btn" onclick="closeAllSheets()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <input type="text" class="editor-title-input" id="letterEditTitle" placeholder="Give it a title...">
+    <textarea class="editor-body-input" id="letterEditBody" placeholder="Everything you want to say..." style="min-height:140px;"></textarea>
+    <div class="eyebrow">Who can open this</div>
+    <div class="vis-toggle">
+      <button class="vis-opt sel" id="letterVisPrivate" onclick="setLetterVisibility('private')">Private</button>
+      <button class="vis-opt" id="letterVisShared" onclick="setLetterVisibility('shared')">Send to partner</button>
+    </div>
+    <div class="eyebrow">Open on (optional)</div>
+    <div class="field" style="margin-top:10px;"><input type="date" class="field-input" id="letterOpenOn"></div>
+    <button class="btn btn-primary btn-block" style="margin-top:18px;" onclick="saveLetter()">Seal this letter</button>
+  </div>
+</div>
+
+<!-- on this day -->
+<div class="sheet" id="sheetOnThisDay">
+  <div class="sheet-grab"></div>
+  <div class="sheet-head"><span class="eyebrow">On this day</span>
+    <button class="icon-btn" onclick="closeAllSheets()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body" id="onThisDayBody"></div>
+</div>
+
+<!-- search overlay -->
+<div class="sheet sheet-full" id="sheetSearch" style="border-radius:0;">
+  <div class="sheet-head" style="padding-top:20px;"><span class="eyebrow">Search</span>
+    <button class="icon-btn" onclick="closeAllSheets()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="sheet-body">
+    <div class="search-input-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="Search our story..." oninput="runSearch()">
+    </div>
+    <div id="searchResults"></div>
+  </div>
+</div>
+
+<!-- delete space confirm -->
+<div class="confirm-modal" id="deleteModal">
+  <div class="backdrop" onclick="closeDeleteConfirm()"></div>
+  <div class="confirm-box">
+    <div class="glyph"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 10h6v10H9z"/><path d="M8 20h8"/><path d="M12 3c1.4 1.5 1.3 2.8 0 4-1.3-1.2-1.4-2.5 0-4Z"/><path d="M10 10h4"/></svg></span></div>
+    <h3 id="deleteTitle">Let this space go?</h3>
+    <p id="deleteText">Every diary, letter and memory here belongs to just the two of you. This can't be undone.</p>
+    <div class="row">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeDeleteConfirm()">Cancel</button>
+      <button class="btn btn-primary" style="flex:1; background:linear-gradient(155deg,#8a1526,#4a0f18);" id="deleteConfirmBtn" onclick="deleteStep()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"><span class="dot"></span><span id="toastText">Kept</span></div>
+
+</div>
+</div>
+
+<script>
+/* ============================= DATA ============================= */
+const TODAY = new Date(2026,7,9); // Aug 9 2026
+const state = {
+  user:'Aditya', partner:'Meher', spaceName:'Aditya & Meher',
+  togetherSince:new Date(2021,6,24),
+  selectedDate:new Date(TODAY),
+  viewMonth:new Date(TODAY.getFullYear(), TODAY.getMonth(), 1),
+  currentTab:'home',
+  memFilter:'All', memView:'moments',
+  editorMood:null, editorVis:'shared',
+  letterVis:'shared',
+  entries:[
+    {id:1,date:'2026-08-08',title:'That ordinary evening',mood:'😌',moodLabel:'Peaceful',vis:'shared',author:'Aditya',
+      body:"Today was quiet. Somehow those are becoming my favorite days.\n\nWe didn't do anything remarkable — just dinner, a bad film we couldn't stop watching, and you falling asleep on my shoulder before it ended. I keep thinking how strange it is that the ordinary evenings are the ones I want to remember most.",
+      reply:null},
+    {id:2,date:'2026-08-05',title:'The rain outside our window',mood:'🥺',moodLabel:'Emotional',vis:'shared',author:'Meher',
+      body:"I woke up before you and just watched the rain for a while. There's a version of happiness that doesn't need anything to happen — it just needs you asleep next to me and the sound of water on glass.",
+      reply:"I love that you wrote this. I was awake too, pretending to sleep so you wouldn't stop watching."},
+    {id:3,date:'2026-07-30',title:'A hard conversation',mood:'😔',moodLabel:'Sad',vis:'private',author:'Aditya',
+      body:"Kept this one to myself. We talked about something difficult tonight — not a fight, just a hard truth we needed to say out loud. I'm still turning it over in my head.",
+      reply:null},
+    {id:4,date:'2026-07-22',title:'The little things',mood:'😊',moodLabel:'Happy',vis:'shared',author:'Meher',
+      body:"You remembered I don't like coriander before I even had to ask. Small thing, I know. But I don't think I'll forget it.",
+      reply:null},
+    {id:5,date:'2023-08-09',title:'Three years in, still learning you',mood:'❤️',moodLabel:'Loved',vis:'shared',author:'Aditya',
+      body:"Today felt like a milestone even though nothing marked it. I realised I still find new things about you to love — the way you hum when you cook, the way you always finish my sentences wrong but somehow better.",
+      reply:"I remember this day. I still hum. You still let me finish your sentences wrong."},
+    {id:6,date:'2024-08-09',title:'Four years, one strange year',mood:'🥺',moodLabel:'Emotional',vis:'shared',author:'Meher',
+      body:"This year tested us more than any before it. But writing this tonight, I just feel grateful. We're still here, still choosing each other every single day.",
+      reply:null},
+  ],
+  letters:[
+    {id:1,title:'To you, on a difficult day',date:'2026-03-02',author:'Aditya',vis:'shared',openOn:null,
+      body:"If you're reading this, today was probably harder than it should have been.\n\nI want you to know that whatever it is, it doesn't change how I see you. You are still the most steady, kind person I know, even on the days you feel like neither.\n\nCome find me when you're ready. I'll be here."},
+    {id:2,title:'Things I never say enough',date:'2026-01-14',author:'Meher',vis:'shared',openOn:null,
+      body:"I don't tell you enough that I notice everything. The way you check the door twice before bed. The way you always let me pick the music. The way you say my name differently than everyone else does.\n\nThank you for being patient with me. Thank you for staying, even on the days I make it hard."},
+    {id:3,title:'For our next anniversary',date:'2026-06-20',author:'Aditya',vis:'shared',openOn:'2027-02-14',
+      body:"By the time you're reading this, we'll have made it another year. I hope wherever we are, we're still doing the small rituals — coffee before either of us speaks, the walk after dinner, all of it.\n\nHappy anniversary. I'd choose you again in every version of this."},
+  ],
+  memories:[
+    {id:1,cat:'Firsts',date:'2021-07-24',title:'Our first date',body:'Neither of us knew how important that evening would become. You were twenty minutes late and I had already decided I liked you by the time you arrived.'},
+    {id:2,cat:'Firsts',date:'2021-08-02',title:'The first "I love you"',body:'Said by accident, in the middle of an argument about directions. We still laugh about it.'},
+    {id:3,cat:'Dates',date:'2022-02-14',title:'That Valentine\'s dinner',body:'The restaurant lost our reservation, so we ate street food on a curb instead. Best Valentine\'s either of us has had.'},
+    {id:4,cat:'Funny moments',date:'2023-05-11',title:'The wrong train',body:'Ended up two cities away, laughing too hard to be annoyed. Turned an accident into one of our best stories.'},
+    {id:5,cat:'Important moments',date:'2024-03-19',title:'The year that tested us',body:'We got through something neither of us expected. Writing it here so we never forget how hard we fought for this.'},
+    {id:6,cat:'Random memories',date:'2025-09-03',title:'3am grocery run',body:'Neither of us could sleep, so we drove to the only store still open, just to have somewhere to be together.'},
+  ],
+  timeline:[
+    {year:2021,label:'We met'},
+    {year:2022,label:'First anniversary'},
+    {year:2023,label:'That trip'},
+    {year:2024,label:'We got through that difficult year'},
+    {year:2025,label:'Started building our space'},
+    {year:2026,label:'Still here.'},
+  ]
+};
+let activeEntryId=null, activeLetterId=null, deleteStage=0;
+const MOODS=[{e:'❤️',l:'Loved'},{e:'😊',l:'Happy'},{e:'😌',l:'Peaceful'},{e:'🥺',l:'Emotional'},{e:'😔',l:'Sad'},{e:'😤',l:'Angry'}];
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WDAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+/* ============================= PREMIUM ICON HELPERS ============================= */
+
+function iconSvg(name){
+  const icons={
+    heart:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"/></svg>`,
+    smile:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14.5c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8"/><path d="M9 10h.01M15 10h.01"/></svg>`,
+    calm:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14.5h7"/><path d="M9 10h.01M15 10h.01"/></svg>`,
+    cloud:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M7.5 18h9a4 4 0 0 0 .7-7.9A5.5 5.5 0 0 0 6.5 9.4 4.2 4.2 0 0 0 7.5 18Z"/></svg>`,
+    sad:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 16c1-1.1 2.2-1.6 3.5-1.6s2.5.5 3.5 1.6"/><path d="M9 10h.01M15 10h.01"/></svg>`,
+    angry:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 16c1.1-1 2.3-1.5 3.5-1.5s2.4.5 3.5 1.5"/><path d="m8.8 9.5 2 1M15.2 9.5l-2 1"/></svg>`
+  }; return `<span class="ui-icon">${icons[name]||icons.calm}</span>`;
+}
+function moodIcon(m){ return ({'❤️':'heart','😊':'smile','😌':'calm','🥺':'cloud','😔':'sad','😤':'angry'})[m]||'calm';}
+
+/* ============================= HELPERS ============================= */
+function fmtDate(d){ return `${String(d.getDate()).padStart(2,'0')} ${MONTHS[d.getMonth()].slice(0,3).toUpperCase()} ${d.getFullYear()}`; }
+function fmtDateLong(d){ return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
+function daysBetween(a,b){ return Math.round((b-a)/86400000); }
+function parseISO(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function toISO(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+
+/* ============================= NAVIGATION (onboarding flow) ============================= */
+function goScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+}
+let currentStep=1;
+function renderStepDots(){
+  const dots=document.getElementById('stepDots'); dots.innerHTML='';
+  for(let i=1;i<=4;i++){
+    const d=document.createElement('div');
+    d.className='step-dot'+(i<currentStep?' done':(i===currentStep?' on':''));
+    dots.appendChild(d);
+  }
+}
+function nextStep(){
+  if(currentStep===1){
+    state.user=document.getElementById('inpYou').value.trim()||'You';
+    state.partner=document.getElementById('inpPartner').value.trim()||'Them';
+    document.getElementById('inpSpace').placeholder=`e.g. "${state.user} & Her"`;
+    document.getElementById('namePreview').textContent=`${state.user} & ${state.partner}`;
+  }
+  if(currentStep===2){
+    const custom=document.getElementById('inpSpace').value.trim();
+    state.spaceName = custom || `${state.user} & ${state.partner}`;
+  }
+  currentStep++;
+  document.querySelectorAll('.step-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`.step-pane[data-step="${currentStep}"]`).classList.add('active');
+  renderStepDots();
+}
+function initDateSelects(){
+  const dayS=document.getElementById('selDay'), monS=document.getElementById('selMonth'), yrS=document.getElementById('selYear');
+  for(let i=1;i<=31;i++) dayS.innerHTML+=`<option ${i===24?'selected':''} value="${i}">${i}</option>`;
+  MONTHS.forEach((m,i)=>monS.innerHTML+=`<option ${i===6?'selected':''} value="${i}">${m.slice(0,3)}</option>`);
+  for(let y=2026;y>=2005;y--) yrS.innerHTML+=`<option ${y===2021?'selected':''} value="${y}">${y}</option>`;
+}
+function createSpace(){
+  const d=+document.getElementById('selDay').value, m=+document.getElementById('selMonth').value, y=+document.getElementById('selYear').value;
+  state.togetherSince=new Date(y,m,d);
+  document.getElementById('createdHeadline').textContent=state.spaceName;
+  const code='VLVT-'+Math.random().toString(36).slice(2,6).toUpperCase();
+  document.getElementById('inviteCode').textContent=code;
+  currentStep=4;
+  document.querySelectorAll('.step-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelector('.step-pane[data-step="4"]').classList.add('active');
+  renderStepDots();
+}
+function enterApp(){
+  goScreen('onboarding'); // reset behind
+  document.getElementById('mainApp').classList.add('active');
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  renderAll();
+}
+
+/* ============================= TAB SWITCH ============================= */
+function switchTab(name){
+  state.currentTab=name;
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.getElementById('fabWrite').style.display = (name==='letters') ? 'none' : 'flex';
+}
+
+/* ============================= RENDER: HOME ============================= */
+function renderHome(){
+  const days=daysBetween(state.togetherSince, TODAY);
+  document.getElementById('homeGreeting').textContent=`Good evening, ${state.user}.`;
+  document.getElementById('homeDaysCount').textContent=days.toLocaleString();
+  const recents=document.getElementById('homeRecents');
+  recents.innerHTML='';
+  state.entries.slice().sort((a,b)=>parseISO(b.date)-parseISO(a.date)).slice(0,4).forEach(e=>{
+    recents.appendChild(buildDiaryCard(e));
+  });
+}
+function buildDiaryCard(e){
+  const el=document.createElement('div');
+  el.className='diary-card';
+  el.onclick=()=>openReader(e.id);
+  const d=parseISO(e.date);
+  el.innerHTML=`
+    <div class="row1"><span class="mood">${e.mood}</span>
+      <span class="badge ${e.vis==='shared'?'badge-shared':'badge-private'}">${e.vis==='shared'?iconSvg('heart')+' Shared':iconSvg('lock')+' Private'}</span></div>
+    <div class="title serif">${e.title}</div>
+    <div class="excerpt">${e.body.split('\n')[0]}</div>
+    <div class="meta">${fmtDate(d)}</div>`;
+  return el;
+}
+
+/* ============================= RENDER: JOURNAL ============================= */
+function renderJournal(){
+  document.getElementById('monthLabel').textContent=`${MONTHS[state.viewMonth.getMonth()]} ${state.viewMonth.getFullYear()}`;
+  const strip=document.getElementById('dateStrip'); strip.innerHTML='';
+  const y=state.viewMonth.getFullYear(), m=state.viewMonth.getMonth();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  let selChip=null;
+  for(let d=1; d<=daysInMonth; d++){
+    const dateObj=new Date(y,m,d);
+    const iso=toISO(dateObj);
+    const has=state.entries.some(e=>e.date===iso);
+    const isSel = toISO(state.selectedDate)===iso;
+    const chip=document.createElement('div');
+    chip.className='date-chip'+(has?' has-entry':'')+(isSel?' sel':'');
+    chip.innerHTML=`<div class="d">${d}</div><div class="w">${WDAYS[dateObj.getDay()]}</div>`;
+    chip.onclick=()=>{ state.selectedDate=dateObj; renderJournal(); };
+    strip.appendChild(chip);
+    if(isSel) selChip=chip;
+  }
+  setTimeout(()=>{ if(selChip) selChip.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'}); },50);
+
+  const isCurrentMonth = (y===TODAY.getFullYear() && m===TODAY.getMonth());
+  document.getElementById('journalListLabel').textContent = isCurrentMonth ? 'This month' : `${MONTHS[m]} ${y}`;
+  const list=document.getElementById('journalList');
+  list.innerHTML='';
+  const monthEntries=state.entries.filter(e=>{ const ed=parseISO(e.date); return ed.getFullYear()===y && ed.getMonth()===m; })
+    .sort((a,b)=>parseISO(b.date)-parseISO(a.date));
+  if(monthEntries.length===0){
+    list.innerHTML=`<div class="empty-state"><div class="glyph"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 10h6v10H9z"/><path d="M8 20h8"/><path d="M12 3c1.4 1.5 1.3 2.8 0 4-1.3-1.2-1.4-2.5 0-4Z"/><path d="M10 10h4"/></svg></span></div><div class="h">No memories yet.</div>
+      <div class="s">Tonight could be the first page.</div>
+      <button class="btn btn-primary" onclick="openEditor()">Write something</button></div>`;
+    return;
+  }
+  monthEntries.forEach(e=>list.appendChild(buildDiaryCard(e)));
+}
+function shiftMonth(dir){
+  state.viewMonth=new Date(state.viewMonth.getFullYear(), state.viewMonth.getMonth()+dir, 1);
+  renderJournal();
+}
+
+/* ============================= RENDER: LETTERS ============================= */
+function renderLetters(){
+  const list=document.getElementById('lettersList');
+  list.innerHTML='';
+  state.letters.slice().sort((a,b)=>parseISO(b.date)-parseISO(a.date)).forEach(l=>{
+    const locked = l.openOn && parseISO(l.openOn) > TODAY;
+    const card=document.createElement('div');
+    card.className='letter-card';
+    card.onclick=()=>openLetterReader(l.id);
+    card.innerHTML=`
+      <div class="seal">✒</div>
+      <div class="title serif">${l.title}</div>
+      <div class="teaser">${l.body.slice(0,70)}…</div>
+      ${locked ? `<div class="lockline">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        Locked until ${fmtDateLong(parseISO(l.openOn))}</div>`
+      : `<div class="lockline" style="color:var(--gray);">${l.author==='Aditya'?'From you':'From '+l.author} · ${fmtDate(parseISO(l.date))}</div>`}
+    `;
+    list.appendChild(card);
+  });
+}
+
+/* ============================= RENDER: MEMORIES ============================= */
+const CATS=['All','Firsts','Dates','Trips','Funny moments','Important moments','Random memories'];
+function renderMemChips(){
+  const row=document.getElementById('memChips'); row.innerHTML='';
+  CATS.forEach(c=>{
+    const chip=document.createElement('button');
+    chip.className='chip'+(state.memFilter===c?' active':'');
+    chip.textContent=c;
+    chip.onclick=()=>{ state.memFilter=c; renderMemChips(); renderMemories(); };
+    row.appendChild(chip);
+  });
+}
+function renderMemories(){
+  const list=document.getElementById('memoriesList');
+  list.innerHTML='';
+  const items = state.memories.filter(m=>state.memFilter==='All'||m.cat===state.memFilter)
+    .sort((a,b)=>parseISO(b.date)-parseISO(a.date));
+  if(items.length===0){
+    list.innerHTML=`<div class="empty-state"><div class="glyph"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"/></svg></span></div><div class="h">No memories yet.</div>
+      <div class="s">Tonight could be the first page.</div>
+      <button class="btn btn-primary" onclick="toast('Memory writing opens from Journal · Letters')">Write something</button></div>`;
+    return;
+  }
+  items.forEach((m,i)=>{
+    const row=document.createElement('div');
+    row.className='memory-item';
+    row.innerHTML=`<div class="rail"><div class="node"></div>${i<items.length-1?'<div class="line"></div>':''}</div>
+      <div class="card"><div class="cat">${m.cat}</div><div class="title serif">${m.title}</div>
+      <div class="date">${fmtDate(parseISO(m.date))}</div><div class="body">${m.body}</div></div>`;
+    list.appendChild(row);
+  });
+}
+function renderTimeline(){
+  const list=document.getElementById('timelineList');
+  list.innerHTML='';
+  state.timeline.forEach(t=>{
+    list.innerHTML+=`<div class="tl-year">${t.year}</div><div class="tl-item"><div class="mark"></div><div class="txt">${iconSvg('heart')} ${t.label}</div></div>`;
+  });
+}
+function setMemView(v){
+  state.memView=v;
+  document.getElementById('viewMoments').classList.toggle('active', v==='moments');
+  document.getElementById('viewTimeline').classList.toggle('active', v==='timeline');
+  document.getElementById('memoriesList').classList.toggle('hidden', v!=='moments');
+  document.getElementById('memChips').classList.toggle('hidden', v!=='moments');
+  document.getElementById('timelineList').classList.toggle('hidden', v!=='timeline');
+}
+
+/* ============================= RENDER: PROFILE ============================= */
+function renderProfile(){
+  const days=daysBetween(state.togetherSince, TODAY);
+  document.getElementById('spaceHeroName').textContent=state.spaceName;
+  document.getElementById('spaceHeroSince').textContent=`Together since ${fmtDateLong(state.togetherSince)}`;
+  document.getElementById('spaceHeroDays').textContent=days.toLocaleString();
+  document.getElementById('spaceHeroEntries').textContent=state.entries.length;
+  document.getElementById('spaceHeroLetters').textContent=state.letters.length;
+}
+
+function renderAll(){
+  renderHome(); renderJournal(); renderLetters(); renderMemChips(); renderMemories(); renderTimeline(); renderProfile();
+}
+
+/* ============================= DIARY EDITOR ============================= */
+function renderMoodRow(){
+  const row=document.getElementById('moodRow'); row.innerHTML='';
+  MOODS.forEach(m=>{
+    const el=document.createElement('div');
+    el.className='mood-opt'+(state.editorMood===m.e?' sel':'');
+    el.innerHTML=`<span class="em">${iconSvg(moodIcon(m.e))}</span><span class="lb">${m.l}</span>`;
+    el.onclick=()=>{ state.editorMood=m.e; renderMoodRow(); };
+    row.appendChild(el);
+  });
+}
+function setVisibility(v){
+  state.editorVis=v;
+  document.getElementById('visPrivate').classList.toggle('sel', v==='private');
+  document.getElementById('visShared').classList.toggle('sel', v==='shared');
+}
+function openEditor(){
+  state.editorMood='😌'; state.editorVis='shared';
+  document.getElementById('editorTitle').value='';
+  document.getElementById('editorBody').value='';
+  document.getElementById('editorDateLabel').textContent='Today · '+fmtDate(TODAY);
+  renderMoodRow(); setVisibility('shared');
+  document.getElementById('sheetEditor').classList.add('show');
+}
+function closeEditor(){ document.getElementById('sheetEditor').classList.remove('show'); }
+function saveEntry(){
+  const title=document.getElementById('editorTitle').value.trim()||'A moment worth keeping';
+  const body=document.getElementById('editorBody').value.trim()||'No words tonight — just the feeling.';
+  state.entries.unshift({id:Date.now(),date:toISO(TODAY),title,mood:state.editorMood,moodLabel:'',vis:state.editorVis,author:state.user,body,reply:null});
+  closeEditor();
+  toast('Kept this memory');
+  renderHome(); renderJournal();
+}
+
+/* ============================= DIARY READER ============================= */
+function openReader(id){
+  activeEntryId=id;
+  const e=state.entries.find(x=>x.id===id);
+  document.getElementById('readerBadge').className='badge '+(e.vis==='shared'?'badge-shared':'badge-private');
+  document.getElementById('readerBadge').textContent=e.vis==='shared'?iconSvg('heart')+' Shared':iconSvg('lock')+' Private';
+  document.getElementById('readerDate').textContent=fmtDateLong(parseISO(e.date));
+  document.getElementById('readerMood').innerHTML=iconSvg(moodIcon(e.mood));
+  document.getElementById('readerTitle').textContent=e.title;
+  document.getElementById('readerBody').textContent=e.body;
+  document.getElementById('readerAuthor').textContent=`Written by ${e.author}`;
+  const replyBox=document.getElementById('replyBox');
+  const shownEl=document.getElementById('replyShown');
+  const inputEl=document.getElementById('replyInput');
+  if(e.vis==='shared'){
+    document.getElementById('readerShared').style.display='block';
+    document.getElementById('readerShared').textContent=iconSvg('heart')+' Shared with you';
+    replyBox.style.display='block';
+    if(e.reply){ shownEl.style.display='block'; shownEl.textContent='"'+e.reply+'"'; inputEl.style.display='none'; document.querySelector('#replyBox .btn').style.display='none'; }
+    else { shownEl.style.display='none'; inputEl.style.display='block'; inputEl.value=''; document.querySelector('#replyBox .btn').style.display='flex'; }
+  } else {
+    document.getElementById('readerShared').style.display='none';
+    replyBox.style.display='none';
+  }
+  document.getElementById('backdrop').classList.add('show');
+  document.getElementById('sheetReader').classList.add('show');
+}
+function sendReply(){
+  const e=state.entries.find(x=>x.id===activeEntryId);
+  const val=document.getElementById('replyInput').value.trim();
+  if(!val) return;
+  e.reply=val;
+  openReader(e.id);
+  toast('Reply sent');
+}
+
+/* ============================= LETTERS ============================= */
+function setLetterVisibility(v){
+  state.letterVis=v;
+  document.getElementById('letterVisPrivate').classList.toggle('sel', v==='private');
+  document.getElementById('letterVisShared').classList.toggle('sel', v==='shared');
+}
+function openLetterEditor(){
+  document.getElementById('letterEditTitle').value='';
+  document.getElementById('letterEditBody').value='';
+  document.getElementById('letterOpenOn').value='';
+  setLetterVisibility('shared');
+  document.getElementById('backdrop').classList.add('show');
+  document.getElementById('sheetLetterEditor').classList.add('show');
+}
+function saveLetter(){
+  const title=document.getElementById('letterEditTitle').value.trim()||'Untitled letter';
+  const body=document.getElementById('letterEditBody').value.trim()||'...';
+  const openOn=document.getElementById('letterOpenOn').value||null;
+  state.letters.unshift({id:Date.now(),title,date:toISO(TODAY),author:state.user,vis:state.letterVis,openOn,body});
+  closeAllSheets();
+  toast('Letter sealed');
+  renderLetters();
+}
+function openLetterReader(id){
+  const l=state.letters.find(x=>x.id===id);
+  const locked = l.openOn && parseISO(l.openOn) > TODAY;
+  if(locked){
+    document.getElementById('letterReaderBody').innerHTML=`
+      <div style="text-align:center; padding:60px 10px;">
+        <div class="glyph" style="font-size:34px; margin-bottom:16px;"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span></div>
+        <div class="reader-title serif" style="font-size:20px;">${l.title}</div>
+        <p style="color:var(--gray); font-size:13.5px; margin-top:14px; line-height:1.7;">This letter is locked until<br><b style="color:var(--ivory);">${fmtDateLong(parseISO(l.openOn))}</b></p>
+      </div>`;
+  } else {
+    document.getElementById('letterReaderBody').innerHTML=`
+      <div class="reader-date">${fmtDateLong(parseISO(l.date))}</div>
+      <div class="reader-title serif">${l.title}</div>
+      <div class="reader-body">${l.body}</div>
+      <div class="reader-signoff"><span>Written by ${l.author}</span></div>`;
+  }
+  document.getElementById('sheetLetterReader').classList.add('show');
+}
+
+/* ============================= ON THIS DAY ============================= */
+function openOnThisDay(){
+  const body=document.getElementById('onThisDayBody');
+  body.innerHTML=`<p style="font-family:var(--serif); font-style:italic; color:var(--ivory-dim); margin:8px 0 20px;">Little pieces of you two, from years past.</p>`;
+  const matches=state.entries.filter(e=>{
+    const d=parseISO(e.date);
+    return d.getMonth()===TODAY.getMonth() && d.getDate()===TODAY.getDate() && d.getFullYear()<TODAY.getFullYear();
+  }).sort((a,b)=>parseISO(b.date)-parseISO(a.date));
+  if(matches.length===0){ body.innerHTML+=`<div class="empty-state"><div class="glyph"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 10h6v10H9z"/><path d="M8 20h8"/><path d="M12 3c1.4 1.5 1.3 2.8 0 4-1.3-1.2-1.4-2.5 0-4Z"/><path d="M10 10h4"/></svg></span></div><div class="h">Nothing from today, yet.</div><div class="s">Give it a few years.</div></div>`; }
+  matches.forEach(e=>{
+    const yrs=TODAY.getFullYear()-parseISO(e.date).getFullYear();
+    const card=document.createElement('div');
+    card.style.cssText='margin-bottom:16px; cursor:pointer;';
+    card.onclick=()=>{ closeAllSheets(); setTimeout(()=>openReader(e.id),350); };
+    card.appendChild((()=>{ const w=document.createElement('div'); w.className='diary-card'; w.style.margin='0';
+      w.innerHTML=`<div class="row1"><span class="mood">${e.mood}</span><span class="badge badge-shared">${yrs} year${yrs>1?'s':''} ago</span></div>
+      <div class="title serif">${e.title}</div><div class="excerpt">${e.body.split('\n')[0]}</div>
+      <div class="meta">${fmtDate(parseISO(e.date))}</div>`;
+      return w; })());
+    body.appendChild(card);
+  });
+  document.getElementById('backdrop').classList.add('show');
+  document.getElementById('sheetOnThisDay').classList.add('show');
+}
+
+/* ============================= SEARCH ============================= */
+function openSearch(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('searchResults').innerHTML='';
+  document.getElementById('sheetSearch').classList.add('show');
+  setTimeout(()=>document.getElementById('searchInput').focus(),400);
+}
+function runSearch(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  const results=document.getElementById('searchResults');
+  results.innerHTML='';
+  if(!q) return;
+  const out=[];
+  state.entries.forEach(e=>{ if((e.title+e.body).toLowerCase().includes(q)) out.push({kind:'Diary',title:e.title,date:e.date,go:()=>{ closeAllSheets(); setTimeout(()=>openReader(e.id),350); }}); });
+  state.letters.forEach(l=>{ if((l.title+l.body).toLowerCase().includes(q)) out.push({kind:'Letter',title:l.title,date:l.date,go:()=>{ closeAllSheets(); setTimeout(()=>openLetterReader(l.id),350); }}); });
+  state.memories.forEach(m=>{ if((m.title+m.body).toLowerCase().includes(q)) out.push({kind:'Memory',title:m.title,date:m.date,go:()=>{ closeAllSheets(); switchTab('memories'); }}); });
+  state.timeline.forEach(t=>{ if(t.label.toLowerCase().includes(q)) out.push({kind:'Timeline',title:t.label,date:t.year+'-01-01',go:()=>{ closeAllSheets(); switchTab('memories'); setMemView('timeline'); }}); });
+  if(out.length===0){ results.innerHTML=`<div class="empty-state"><div class="glyph"><span class="ui-icon "><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z"/></svg></span></div><div class="h">Nothing found.</div><div class="s">Try another word from your story.</div></div>`; return; }
+  out.sort((a,b)=>parseISO(b.date)-parseISO(a.date)).forEach(r=>{
+    const el=document.createElement('div'); el.className='search-result'; el.style.cursor='pointer';
+    el.onclick=r.go;
+    el.innerHTML=`<div style="flex:1;"><div class="k">${r.kind}</div><div class="t serif">${r.title}</div><div class="d">${fmtDate(parseISO(r.date))}</div></div>`;
+    results.appendChild(el);
+  });
+}
+
+/* ============================= PROFILE TOGGLES ============================= */
+function toggleRow(rowEl, key){
+  const t = key==='notif' ? document.getElementById('toggleNotif') : document.getElementById('toggleLock');
+  t.classList.toggle('on');
+  toast(t.classList.contains('on') ? (key==='notif'?'Notifications on':'App lock on') : (key==='notif'?'Notifications off':'App lock off'));
+}
+
+/* ============================= DELETE SPACE FLOW ============================= */
+function openDeleteConfirm(){
+  deleteStage=1;
+  document.getElementById('deleteTitle').textContent='Let this space go?';
+  document.getElementById('deleteText').textContent="Every diary, letter and memory here belongs to just the two of you. This can't be undone.";
+  document.getElementById('deleteConfirmBtn').textContent='Continue';
+  document.getElementById('deleteModal').classList.add('show');
+}
+function closeDeleteConfirm(){ document.getElementById('deleteModal').classList.remove('show'); }
+function deleteStep(){
+  if(deleteStage===1){
+    deleteStage=2;
+    document.getElementById('deleteTitle').textContent='Truly delete everything?';
+    document.getElementById('deleteText').textContent='This erases every entry, letter and memory forever, for both of you. There is no way back.';
+    document.getElementById('deleteConfirmBtn').textContent="Yes, let this memory go";
+  } else {
+    closeDeleteConfirm();
+    toast('This is a prototype — nothing was deleted');
+  }
+}
+
+/* ============================= SHEET MANAGEMENT ============================= */
+function closeSheetFs(id){ document.getElementById(id).classList.remove('show'); document.getElementById('backdrop').classList.remove('show'); }
+function closeAllSheets(){
+  ['sheetLetterEditor','sheetOnThisDay','sheetSearch'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  ['sheetReader','sheetLetterReader'].forEach(id=>document.getElementById(id).classList.remove('show'));
+  document.getElementById('backdrop').classList.remove('show');
+}
+
+/* ============================= TOAST ============================= */
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastText').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ============================= INIT ============================= */
+initDateSelects();
+renderStepDots();
+</script>
+</body>
+</html>

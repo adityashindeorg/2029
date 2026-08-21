@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: 2029_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: db2029
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: 2029_backend
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://postgres:postgrespassword@db:5432/db2029
+      JWT_SECRET: super-secret-jwt-key-2029
+      CORS_ORIGINS: "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173"
+      APPROVED_USER_1_EMAIL: "partner1@2029.app"
+      APPROVED_USER_1_PASSWORD: "partner1password"
+      APPROVED_USER_1_NAME: "Partner 1"
+      APPROVED_USER_2_EMAIL: "partner2@2029.app"
+      APPROVED_USER_2_PASSWORD: "partner2password"
+      APPROVED_USER_2_NAME: "Partner 2"
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:
