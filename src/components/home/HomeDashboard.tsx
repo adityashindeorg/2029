@@ -17,6 +17,8 @@ export const HomeDashboard: React.FC = () => {
   const [latestMilestone, setLatestMilestone] = useState<Milestone | null>(null);
   const [recents, setRecents] = useState<DiaryEntry[]>([]);
   const [nextMeeting, setNextMeeting] = useState<Meeting | null>(null);
+  
+  const [showHearts, setShowHearts] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -62,6 +64,16 @@ export const HomeDashboard: React.FC = () => {
     if (hour < 12) return `Good morning, ${name}.`;
     if (hour < 18) return `Good afternoon, ${name}.`;
     return `Good evening, ${name}.`;
+  };
+
+  const handleEventClick = () => {
+    setShowHearts(true);
+    setTimeout(() => {
+      alert("Countdown: 3 days remaining and all! 🕷️🍛");
+    }, 100);
+    setTimeout(() => {
+      setShowHearts(false);
+    }, 4000);
   };
 
   if (loading) {
@@ -111,6 +123,15 @@ export const HomeDashboard: React.FC = () => {
           {error}
         </div>
       )}
+
+      {/* Interactive Date Announcement */}
+      <div className="section-pad">
+        <div onClick={handleEventClick} style={{ border: '2px solid', padding: '16px', textAlign: 'center', cursor: 'pointer', marginBottom: '16px' }}>
+          <h2>Date on Sunday! 🕷️🍛</h2>
+          <p>Spiderman movie and masaledar egg biryani for lunch</p>
+          <button type="button">Tap for magic</button>
+        </div>
+      </div>
 
       {/* Prompt Card */}
       <div className="section-pad">
@@ -241,6 +262,14 @@ export const HomeDashboard: React.FC = () => {
       )}
 
       <div style={{ height: '30px' }} />
+
+      {showHearts && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', pointerEvents: 'none', zIndex: 9999, fontSize: '3rem', display: 'flex', flexWrap: 'wrap', overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }}>
+          {Array.from({ length: 40 }).map((_, i) => (
+            <span key={i} style={{ margin: `${Math.random() * 20}px` }}>❤️</span>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

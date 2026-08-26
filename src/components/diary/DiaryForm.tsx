@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRelationship } from '../../hooks/useRelationship';
 import { useAuth } from '../../hooks/useAuth';
 import { createDiaryEntry, updateDiaryEntry } from '../../services/diaryService';
@@ -27,6 +27,24 @@ export const DiaryForm: React.FC<DiaryFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Load draft on mount if not editing an existing entry
+  useEffect(() => {
+    if (!entryToEdit) {
+      const savedTitle = localStorage.getItem('diary_draft_title');
+      const savedContent = localStorage.getItem('diary_draft_content');
+      if (savedTitle) setTitle(savedTitle);
+      if (savedContent) setContent(savedContent);
+    }
+  }, [entryToEdit]);
+
+  // Save draft whenever title or content changes (and not editing)
+  useEffect(() => {
+    if (!entryToEdit) {
+      localStorage.setItem('diary_draft_title', title);
+      localStorage.setItem('diary_draft_content', content);
+    }
+  }, [title, content, entryToEdit]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -54,6 +72,9 @@ export const DiaryForm: React.FC<DiaryFormProps> = ({
         });
       } else {
         await createDiaryEntry(relationshipId, title.trim(), content.trim(), date);
+        // Clear drafts on successful creation
+        localStorage.removeItem('diary_draft_title');
+        localStorage.removeItem('diary_draft_content');
       }
       onSuccess();
     } catch (err: unknown) {
