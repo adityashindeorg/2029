@@ -125,11 +125,16 @@ export const HomeDashboard: React.FC = () => {
       )}
 
       {/* Interactive Date Announcement */}
-      <div className="section-pad">
-        <div onClick={handleEventClick} style={{ border: '2px solid', padding: '16px', textAlign: 'center', cursor: 'pointer', marginBottom: '16px' }}>
-          <h2>Date on Sunday! 🕷️🍛</h2>
-          <p>Spiderman movie and masaledar egg biryani for lunch</p>
-          <button type="button">Tap for magic</button>
+      <div className="sec-head">
+        <span className="eyebrow">Upcoming Special Date</span>
+      </div>
+      <div className="otd-card" onClick={handleEventClick} style={{ cursor: 'pointer', marginBottom: '16px' }}>
+        <div className="otd-icon" style={{ borderColor: 'var(--crimson-bright)', color: 'var(--crimson-bright)' }}>
+          <span style={{ fontSize: '20px' }}>🕷️</span>
+        </div>
+        <div>
+          <div className="t">Sunday: Spiderman &amp; Biryani</div>
+          <div className="x">Masaledar egg biryani for lunch. Tap for magic!</div>
         </div>
       </div>
 
