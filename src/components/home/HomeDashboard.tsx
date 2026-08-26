@@ -8,6 +8,7 @@ import { getMeetings } from '../../services/meetingService';
 import { Milestone } from '../../types/milestone';
 import { Meeting } from '../../types/meeting';
 import { DiaryEntry } from '../../types/diary';
+import { NeonHeartFireworks } from './NeonHeartFireworks';
 
 export const HomeDashboard: React.FC = () => {
   const { relationship, loading, error } = useRelationship();
@@ -122,7 +123,6 @@ export const HomeDashboard: React.FC = () => {
         className="otd-card" 
         onClick={() => {
           setShowHearts(true);
-          setTimeout(() => setShowHearts(false), 3000);
         }} 
         style={{ cursor: 'pointer', marginBottom: '16px' }}
       >
@@ -136,22 +136,7 @@ export const HomeDashboard: React.FC = () => {
       </div>
       
       {showHearts && (
-        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }}>
-          {Array.from({ length: 30 }).map((_, i) => (
-            <div 
-              key={i} 
-              className="blooming-heart"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${50 + Math.random() * 50}%`,
-                animationDelay: `${Math.random() * 0.5}s`,
-                fontSize: `${1.5 + Math.random() * 2}rem`
-              }}
-            >
-              ❤️
-            </div>
-          ))}
-        </div>
+        <NeonHeartFireworks onClose={() => setShowHearts(false)} />
       )}
 
       {/* Live Luxury Countdown */}
