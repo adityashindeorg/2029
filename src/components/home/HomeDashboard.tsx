@@ -66,16 +66,6 @@ export const HomeDashboard: React.FC = () => {
     return `Good evening, ${name}.`;
   };
 
-  const handleEventClick = () => {
-    setShowHearts(true);
-    setTimeout(() => {
-      alert("Countdown: 3 days remaining and all! 🕷️🍛");
-    }, 100);
-    setTimeout(() => {
-      setShowHearts(false);
-    }, 4000);
-  };
-
   if (loading) {
     return (
       <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--gray)' }}>
@@ -128,15 +118,21 @@ export const HomeDashboard: React.FC = () => {
       <div className="sec-head">
         <span className="eyebrow">Upcoming Special Date</span>
       </div>
-      <div className="otd-card" onClick={handleEventClick} style={{ cursor: 'pointer', marginBottom: '16px' }}>
+      <div className="otd-card" onClick={() => setShowHearts(!showHearts)} style={{ cursor: 'pointer', marginBottom: '16px' }}>
         <div className="otd-icon" style={{ borderColor: 'var(--crimson-bright)', color: 'var(--crimson-bright)' }}>
-          <span style={{ fontSize: '20px' }}>🕷️</span>
+          <span style={{ fontSize: '20px' }}>❤️</span>
         </div>
         <div>
           <div className="t">Sunday: Spiderman &amp; Biryani</div>
-          <div className="x">Masaledar egg biryani for lunch. Tap for magic!</div>
+          <div className="x">Masaledar egg biryani for lunch. Tap to see countdown!</div>
         </div>
       </div>
+      
+      {showHearts && (
+        <div style={{ textAlign: 'center', margin: '20px 0', fontSize: '1.2rem', fontWeight: 'bold' }}>
+          ❤️ 4 Days To Go! ❤️
+        </div>
+      )}
 
       {/* Prompt Card */}
       <div className="section-pad">
@@ -267,14 +263,6 @@ export const HomeDashboard: React.FC = () => {
       )}
 
       <div style={{ height: '30px' }} />
-
-      {showHearts && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', pointerEvents: 'none', zIndex: 9999, fontSize: '3rem', display: 'flex', flexWrap: 'wrap', overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }}>
-          {Array.from({ length: 40 }).map((_, i) => (
-            <span key={i} style={{ margin: `${Math.random() * 20}px` }}>❤️</span>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
