@@ -118,7 +118,14 @@ export const HomeDashboard: React.FC = () => {
       <div className="sec-head">
         <span className="eyebrow">Upcoming Special Date</span>
       </div>
-      <div className="otd-card" onClick={() => setShowHearts(!showHearts)} style={{ cursor: 'pointer', marginBottom: '16px' }}>
+      <div 
+        className="otd-card" 
+        onClick={() => {
+          setShowHearts(true);
+          setTimeout(() => setShowHearts(false), 3000);
+        }} 
+        style={{ cursor: 'pointer', marginBottom: '16px' }}
+      >
         <div className="otd-icon" style={{ borderColor: 'var(--crimson-bright)', color: 'var(--crimson-bright)' }}>
           <span style={{ fontSize: '20px' }}>❤️</span>
         </div>
@@ -129,10 +136,28 @@ export const HomeDashboard: React.FC = () => {
       </div>
       
       {showHearts && (
-        <div style={{ textAlign: 'center', margin: '20px 0', fontSize: '1.2rem', fontWeight: 'bold' }}>
-          ❤️ 4 Days To Go! ❤️
+        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }}>
+          {Array.from({ length: 30 }).map((_, i) => (
+            <div 
+              key={i} 
+              className="blooming-heart"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${50 + Math.random() * 50}%`,
+                animationDelay: `${Math.random() * 0.5}s`,
+                fontSize: `${1.5 + Math.random() * 2}rem`
+              }}
+            >
+              ❤️
+            </div>
+          ))}
         </div>
       )}
+
+      {/* Live Luxury Countdown */}
+      <div className="luxury-countdown">
+        {4} Days To Go
+      </div>
 
       {/* Prompt Card */}
       <div className="section-pad">
