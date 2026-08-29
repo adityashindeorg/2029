@@ -8,7 +8,6 @@ import { getMeetings } from '../../services/meetingService';
 import { Milestone } from '../../types/milestone';
 import { Meeting } from '../../types/meeting';
 import { DiaryEntry } from '../../types/diary';
-import { NeonHeartFireworks } from './NeonHeartFireworks';
 
 export const HomeDashboard: React.FC = () => {
   const { relationship, loading, error } = useRelationship();
@@ -18,8 +17,6 @@ export const HomeDashboard: React.FC = () => {
   const [latestMilestone, setLatestMilestone] = useState<Milestone | null>(null);
   const [recents, setRecents] = useState<DiaryEntry[]>([]);
   const [nextMeeting, setNextMeeting] = useState<Meeting | null>(null);
-  
-  const [showHearts, setShowHearts] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -114,35 +111,6 @@ export const HomeDashboard: React.FC = () => {
           {error}
         </div>
       )}
-
-      {/* Interactive Date Announcement */}
-      <div className="sec-head">
-        <span className="eyebrow">Upcoming Special Date</span>
-      </div>
-      <div 
-        className="otd-card" 
-        onClick={() => {
-          setShowHearts(true);
-        }} 
-        style={{ cursor: 'pointer', marginBottom: '16px' }}
-      >
-        <div className="otd-icon" style={{ borderColor: 'var(--crimson-bright)', color: 'var(--crimson-bright)' }}>
-          <span style={{ fontSize: '20px' }}>❤️</span>
-        </div>
-        <div>
-          <div className="t">Sunday: Spiderman &amp; Biryani</div>
-          <div className="x">Masaledar egg biryani for lunch. Tap to see countdown!</div>
-        </div>
-      </div>
-      
-      {showHearts && (
-        <NeonHeartFireworks onClose={() => setShowHearts(false)} />
-      )}
-
-      {/* Live Luxury Countdown */}
-      <div className="luxury-countdown">
-        {4} Days To Go
-      </div>
 
       {/* Prompt Card */}
       <div className="section-pad">
