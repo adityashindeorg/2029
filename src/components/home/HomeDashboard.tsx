@@ -17,6 +17,14 @@ export const HomeDashboard: React.FC = () => {
   const [latestMilestone, setLatestMilestone] = useState<Milestone | null>(null);
   const [recents, setRecents] = useState<DiaryEntry[]>([]);
   const [nextMeeting, setNextMeeting] = useState<Meeting | null>(null);
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -42,22 +50,46 @@ export const HomeDashboard: React.FC = () => {
     loadData();
   }, []);
 
-  const calculateDaysSince = (dateStr?: string) => {
-    const start = new Date(dateStr || '2020-04-28');
-    const today = new Date();
-    const diffTime = today.getTime() - start.getTime();
-    return Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+  const calculateTimeElapsed = (dateStr?: string) => {
+    const defaultDate = '2020-04-28';
+    const targetStr = dateStr || defaultDate;
+    const formatted = targetStr.includes('T') ? targetStr : `${targetStr}T00:00:00`;
+    const start = new Date(formatted);
+    const validStart = isNaN(start.getTime()) ? new Date(`${defaultDate}T00:00:00`) : start;
+    const diffMs = Math.max(0, currentTime.getTime() - validStart.getTime());
+    
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    return { days, hours, minutes, seconds };
   };
 
-  const calculateDaysUntil = (dateStr?: string) => {
-    const target = new Date(dateStr || '2029-12-31');
-    const today = new Date();
-    const diffTime = target.getTime() - today.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const calculateTimeRemaining = (dateStr?: string) => {
+    const defaultDate = '2029-12-31';
+    const targetStr = dateStr || defaultDate;
+    const formatted = targetStr.includes('T') ? targetStr : `${targetStr}T00:00:00`;
+    const target = new Date(formatted);
+    const validTarget = isNaN(target.getTime()) ? new Date(`${defaultDate}T00:00:00`) : target;
+    const diffMs = validTarget.getTime() - currentTime.getTime();
+    
+    if (diffMs <= 0) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+    
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    return { days, hours, minutes, seconds };
   };
 
   const getGreeting = () => {
-    const hour = new Date().getHours();
+    const hour = currentTime.getHours();
     const name = user?.displayName || user?.name || (user?.email?.includes('partner2') ? 'Janhvi' : 'Aditya');
     if (hour < 12) return `Good morning, ${name}.`;
     if (hour < 18) return `Good afternoon, ${name}.`;
@@ -72,8 +104,8 @@ export const HomeDashboard: React.FC = () => {
     );
   }
 
-  const daysTogether = calculateDaysSince(relationship?.startDate || '2020-04-28');
-  const daysUntil2029 = calculateDaysUntil(relationship?.marriageDate || '2029-12-31');
+  const elapsed = calculateTimeElapsed(relationship?.startDate);
+  const remaining = calculateTimeRemaining(relationship?.marriageDate);
 
   return (
     <div>
@@ -85,14 +117,17 @@ export const HomeDashboard: React.FC = () => {
             Aditya &amp; Janhvi · Since April 28, 2020
           </div>
           <div className="greeting">{getGreeting()}</div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
             <div className="counter-pill">
               <span className="ui-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20.8 8.7c0 5.2-8.8 10.1-8.8 10.1S3.2 13.9 3.2 8.7A4.7 4.7 0 0 1 12 6.1a4.7 4.7 0 0 1 8.8 2.6Z" />
                 </svg>
               </span>
-              <b>{daysTogether.toLocaleString()}</b>&nbsp;days of love
+              <span>
+                <b>{elapsed.days.toLocaleString()}d</b> {String(elapsed.hours).padStart(2, '0')}h {String(elapsed.minutes).padStart(2, '0')}m {String(elapsed.seconds).padStart(2, '0')}s
+              </span>
+              &nbsp;of love
             </div>
             <div className="counter-pill">
               <span className="ui-icon">
@@ -100,7 +135,10 @@ export const HomeDashboard: React.FC = () => {
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
               </span>
-              <b>{daysUntil2029 > 0 ? daysUntil2029.toLocaleString() : '0'}</b>&nbsp;days to 2029 wedding
+              <span>
+                <b>{remaining.days.toLocaleString()}d</b> {String(remaining.hours).padStart(2, '0')}h {String(remaining.minutes).padStart(2, '0')}m {String(remaining.seconds).padStart(2, '0')}s
+              </span>
+              &nbsp;to 2029 wedding
             </div>
           </div>
         </div>
